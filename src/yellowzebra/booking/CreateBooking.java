@@ -73,10 +73,10 @@ public class CreateBooking {
 	}
 
 	public static void main(String[] args) {
-		Customer testCustomer = CreateBooking.createCustomer("Custo", "Santa", "santa@gmail.com");
+		Customer testCustomer = CreateBooking.createCustomer("Custo2", "Santa2", "santa@gmail.com");
 		// test.postCustomer(testCustomer);
 		try {
-			CreateBooking.postBooking(CreateBooking.createBooking(testCustomer, "Tour", "2015-12-01", "09:00"));
+			CreateBooking.postBooking(CreateBooking.createBooking(testCustomer, "Tour", "2015-12-02", "09:00"));
 		} catch (ApiException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

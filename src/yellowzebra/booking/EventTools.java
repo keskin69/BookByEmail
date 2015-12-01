@@ -41,6 +41,8 @@ public class EventTools {
 			c.add(Calendar.DATE, 1);
 			Date endTime = c.getTime();
 
+			System.out.println(Config.APIFORMAT.format(startTime));
+			System.out.println(Config.APIFORMAT.format(endTime));
 			list = api.availabilitySlotsGet(productId, startTime, endTime, 20, pageNavigationToken, 1);
 			pageNavigationToken = list.getInfo().getPageNavigationToken();
 		} catch (ApiException e) {

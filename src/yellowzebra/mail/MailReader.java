@@ -91,6 +91,7 @@ public class MailReader {
 					String from = null;
 					for (Address a : message.getFrom()) {
 						from = ((InternetAddress) a).getAddress();
+						break;
 					}
 
 					String parser = canParse(message.getSubject(), from);

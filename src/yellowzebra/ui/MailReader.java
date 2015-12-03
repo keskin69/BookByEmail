@@ -1,4 +1,4 @@
-package yellowzebra.mail;
+package yellowzebra.ui;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,6 +17,7 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
 
+import yellowzebra.parser.AParser;
 import yellowzebra.util.ClassFinder;
 import yellowzebra.util.Logger;
 
@@ -94,7 +95,7 @@ public class MailReader {
 
 					String parser = canParse(message.getSubject(), from);
 					if (parser != null) {
-						list.add(new SimpleEntry(parser, message));
+						list.add(new SimpleEntry<String, Message>(parser, message));
 					}
 				}
 			}
@@ -126,21 +127,5 @@ public class MailReader {
 		}
 
 		return null;
-	}
-
-	private void parseEmail(AParser parser, Message msg) {
-		if (parser.postBooking(msg)) {
-			// move the email to another directory
-			// TODO
-		}
-	}
-
-	public static void main(String[] args) {
-		try {
-			MailReader.getInstance().getMailList();
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

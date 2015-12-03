@@ -1,6 +1,7 @@
 package yellowzebra.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -21,11 +22,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
 import com.alee.laf.WebLookAndFeel;
-import javax.swing.border.LineBorder;
-import java.awt.Color;
 
 public class ParserUI extends JFrame {
 
@@ -76,7 +76,7 @@ public class ParserUI extends JFrame {
 		JPanel pnlTop = new JPanel();
 		contentPane.add(pnlTop, BorderLayout.CENTER);
 		GridBagLayout gbl_pnlTop = new GridBagLayout();
-		//gbl_pnlTop.columnWidths = new int[] { 1, 4 };
+		// gbl_pnlTop.columnWidths = new int[] { 1, 4 };
 		gbl_pnlTop.columnWeights = new double[] { 1.0, 1.8 };
 		gbl_pnlTop.rowWeights = new double[] { 1.5, 1.0 };
 		pnlTop.setLayout(gbl_pnlTop);
@@ -109,6 +109,10 @@ public class ParserUI extends JFrame {
 		tblMail.setFillsViewportHeight(true);
 		model = new DefaultTableModel(new Object[][] {},
 				new String[] { "Sender", "Subject", "Date", "Parser", "Message" }) {
+			/**
+					 * 
+					 */
+			private static final long serialVersionUID = -6699335251415484030L;
 			boolean[] columnEditables = new boolean[] { false, false, false, false, false };
 
 			public boolean isCellEditable(int row, int column) {

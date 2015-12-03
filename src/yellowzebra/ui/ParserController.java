@@ -8,16 +8,15 @@ import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import io.swagger.client.ApiException;
 import io.swagger.client.model.Booking;
-import yellowzebra.mail.AParser;
-import yellowzebra.mail.MailReader;
+import yellowzebra.booking.CreateBooking;
+import yellowzebra.parser.AParser;
 import yellowzebra.util.Config;
 
 public class ParserController implements Runnable {
@@ -31,7 +30,7 @@ public class ParserController implements Runnable {
 
 	public static void refreshMailList() {
 		model.setRowCount(0);
-		
+
 		ArrayList<Entry<String, Message>> list = null;
 		try {
 			list = MailReader.getInstance().getMailList();
@@ -47,7 +46,7 @@ public class ParserController implements Runnable {
 				String subject = msg.getSubject();
 				String content = msg.getContent().toString();
 				String date = Config.DEFAULT_DATE.format(msg.getReceivedDate()).toString();
-				
+
 				model.addRow(new Object[] { from, subject, date, parser, content });
 			}
 		} catch (MessagingException e) {
@@ -61,16 +60,22 @@ public class ParserController implements Runnable {
 
 	public static void postBooking() {
 		Booking booking = component2Booking();
+		try {
+			CreateBooking.postBooking(booking);
+		} catch (ApiException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static void fillContent(String msg, String parser) {
-		Booking booking = null;
 
 		Class<?> c;
+		AParser p = null;
 		try {
 			c = Class.forName(parser);
-			AParser p = (AParser) c.newInstance();
-			booking = p.parse(msg);
+			p = (AParser) c.newInstance();
+
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -82,7 +87,9 @@ public class ParserController implements Runnable {
 			e.printStackTrace();
 		}
 
-		if (booking != null) {
+		if (p != null) {
+			Booking booking = null;
+			booking = p.parse(msg);
 			booking2Component(booking);
 		}
 	}
@@ -95,14 +102,28 @@ public class ParserController implements Runnable {
 	private static void booking2Component(Booking booking) {
 		panel.removeAll();
 
-		TitledBorder title;
-		title = BorderFactory.createTitledBorder(booking.getBookingNumber());
-		panel.setBorder(title);
+		JLabel lbl;
+		JTextField txt;
 
-		JLabel lblNewLabel = new JLabel("New label");
-		panel.add(lblNewLabel);
-		JTextField textField = new JTextField();
-		panel.add(textField);
+		// booking date
+		String startTime = Config.DEFAULT_DATE.format(booking.getStartTime());
+		lbl = new JLabel("Booking Date");
+		panel.add(lbl);
+		txt = new JTextField(startTime);
+		txt.setEditable(false);
+		panel.add(txt);
+
+		// booking time
+
+		// number of person
+
+		// customer name
+
+		// customer lastname
+
+		// customer e-mail
+
+		// customer phone
 
 		panel.repaint();
 	}

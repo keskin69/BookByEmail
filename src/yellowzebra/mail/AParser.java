@@ -1,6 +1,9 @@
 package yellowzebra.mail;
 
+import java.io.IOException;
+
 import javax.mail.Message;
+import javax.mail.MessagingException;
 
 import io.swagger.client.ApiException;
 import io.swagger.client.model.Booking;
@@ -22,13 +25,22 @@ public abstract class AParser implements IParser {
 	}
 
 	public final boolean postBooking(Message msg) {
-		Booking booking = parse(msg);
+		Booking booking = null;
+		try {
+			booking = parse(msg.getContent().toString());
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (MessagingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		if (booking != null) {
 			try {
 				Logger.log("Posting new booking");
 				CreateBooking.postBooking(booking);
-				
+
 				return true;
 			} catch (ApiException e) {
 				// TODO Auto-generated catch block

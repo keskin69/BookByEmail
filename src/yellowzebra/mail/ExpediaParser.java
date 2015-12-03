@@ -1,10 +1,5 @@
 package yellowzebra.mail;
 
-import java.io.IOException;
-
-import javax.mail.Message;
-import javax.mail.MessagingException;
-
 import io.swagger.client.model.Booking;
 
 public class ExpediaParser extends AParser {
@@ -23,21 +18,10 @@ public class ExpediaParser extends AParser {
 		return false;
 	}
 
-	public Booking parse(Message msg) {
+	public Booking parse(String msg) {
 		Booking booking = new Booking();
-		
-		// TODO Auto-generated method stub
-		try {
-			System.out.println(msg.getContent());
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return null;
+		booking.setBookingNumber("123");
+		return booking;
 	}
 
 }

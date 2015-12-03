@@ -8,6 +8,7 @@ import io.swagger.client.ApiException;
 import io.swagger.client.api.AvailabilityApi;
 import io.swagger.client.model.Slot;
 import io.swagger.client.model.SlotList;
+import yellowzebra.util.Config;
 
 public class EventTools {
 	public EventTools() {

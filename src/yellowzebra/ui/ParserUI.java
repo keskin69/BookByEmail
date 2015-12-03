@@ -1,36 +1,31 @@
 package yellowzebra.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-
-import yellowzebra.mail.MailReader;
-
-import javax.mail.Address;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
-import javax.swing.JButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import java.awt.GridBagLayout;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Map.Entry;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import javax.swing.table.DefaultTableModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.Dimension;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+
+import com.alee.laf.WebLookAndFeel;
+import javax.swing.border.LineBorder;
+import java.awt.Color;
 
 public class ParserUI extends JFrame {
 
@@ -38,59 +33,22 @@ public class ParserUI extends JFrame {
 	 * 
 	 */
 	private static final long serialVersionUID = 1022086231912876450L;
-	private JPanel contentPane;
-	private JTable tblMail;
-	private JTextField textField;
-	private static ArrayList<Entry<String, Message>> list = null;
 	private JButton btnRefresh = null;
-	private JButton btnReset = null;
-	private JButton btnCreate = null;
-
-	private static void setUI() {
-	}
-
-	private void refreshMailList() {
-		if (true) {
-			DefaultTableModel model = (DefaultTableModel) tblMail.getModel();
-			model.addRow(new Object[] { "212", "2222", "dddd" });
-		} else {
-
-			btnRefresh.setEnabled(false);
-			try {
-				list = MailReader.getInstance().getMailList();
-				for (Entry<String, Message> e : list) {
-					String parser = e.getKey();
-					Message msg = (Message) e.getValue();
-
-					String from = null;
-					for (Address a : msg.getFrom()) {
-						from = ((InternetAddress) a).getAddress();
-						break;
-					}
-					String subject = msg.getSubject();
-
-					// DefaultTableModel model = (DefaultTableModel)
-					// tblMail.getModel();
-					// model.addRow(new Object[] { from, subject, parser });
-				}
-			} catch (MessagingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-			btnRefresh.setEnabled(true);
-		}
-	}
+	private DefaultTableModel model = null;
+	private JTable tblMail = null;
+	private JPanel pnlContent = null;
+	private JTextArea txtMail;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		WebLookAndFeel.install();
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					ParserUI frame = new ParserUI();
-					setUI();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -105,60 +63,73 @@ public class ParserUI extends JFrame {
 	public ParserUI() {
 		setTitle("Yellow Zebra Booking Tool V1.0");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 450, 300);
-		contentPane = new JPanel();
+		setBounds(100, 100, 900, 500);
+		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
 
+		System.out.println(System.getProperty("user.dir"));
+		ImageIcon img = new ImageIcon("yellow-zebra.jpg");
+		setIconImage(img.getImage());
+
 		JPanel pnlTop = new JPanel();
 		contentPane.add(pnlTop, BorderLayout.CENTER);
 		GridBagLayout gbl_pnlTop = new GridBagLayout();
-		gbl_pnlTop.columnWeights = new double[] { 1.0, 1.0 };
-		gbl_pnlTop.rowWeights = new double[] { 1.0 };
+		//gbl_pnlTop.columnWidths = new int[] { 1, 4 };
+		gbl_pnlTop.columnWeights = new double[] { 1.0, 1.8 };
+		gbl_pnlTop.rowWeights = new double[] { 1.5, 1.0 };
 		pnlTop.setLayout(gbl_pnlTop);
 
-		JPanel pnlContent = new JPanel();
+		pnlContent = new JPanel();
+		pnlContent.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		GridBagConstraints gbc_pnlContent = new GridBagConstraints();
 		gbc_pnlContent.insets = new Insets(0, 0, 5, 0);
-		gbc_pnlContent.gridwidth = 5;
+		gbc_pnlContent.anchor = GridBagConstraints.NORTHEAST;
 		gbc_pnlContent.fill = GridBagConstraints.BOTH;
 		gbc_pnlContent.gridx = 1;
 		gbc_pnlContent.gridy = 0;
 		pnlTop.add(pnlContent, gbc_pnlContent);
 		pnlContent.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 
-		JLabel lblNewLabel = new JLabel("New label");
-		pnlContent.add(lblNewLabel);
-
-		textField = new JTextField();
-		pnlContent.add(textField);
-		textField.setColumns(10);
-
 		JScrollPane pnlTable = new JScrollPane();
+		pnlTable.setBorder(new LineBorder(new Color(130, 135, 144), 1, true));
+		pnlTable.setMaximumSize(new Dimension(100, Integer.MAX_VALUE));
+		pnlTable.setPreferredSize(new Dimension(100, Integer.MAX_VALUE));
 		GridBagConstraints gbc_pnlTable = new GridBagConstraints();
+		gbc_pnlTable.gridheight = 2;
 		gbc_pnlTable.fill = GridBagConstraints.BOTH;
-		gbc_pnlTable.insets = new Insets(0, 0, 5, 0);
+		gbc_pnlTable.insets = new Insets(0, 0, 0, 5);
 		gbc_pnlTable.anchor = GridBagConstraints.WEST;
 		gbc_pnlTable.gridx = 0;
 		gbc_pnlTable.gridy = 0;
 		pnlTop.add(pnlTable, gbc_pnlTable);
 
 		tblMail = new JTable();
-		tblMail.addMouseListener(new MouseAdapter() {
-			public void mouseClicked(MouseEvent e) {
-			}
-		});
 		tblMail.setFillsViewportHeight(true);
-		tblMail.setModel(new DefaultTableModel(new Object[][] {}, new String[] { "Sender", "Subject", "Parser" }) {
-			boolean[] columnEditables = new boolean[] { false, false, false };
+		model = new DefaultTableModel(new Object[][] {},
+				new String[] { "Sender", "Subject", "Date", "Parser", "Message" }) {
+			boolean[] columnEditables = new boolean[] { false, false, false, false, false };
 
 			public boolean isCellEditable(int row, int column) {
 				return columnEditables[column];
 			}
-		});
+		};
+		tblMail.setModel(model);
 		pnlTable.setRowHeaderView(tblMail);
 		pnlTable.setViewportView(tblMail);
+		tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
+		tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
+
+		tblMail.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent evt) {
+				// generate the components from the message content
+				// TODO warn the user
+				if (tblMail.getSelectedRow() >= 0) {
+					parseMail();
+				}
+			}
+		});
 
 		JPanel pnlButton = new JPanel();
 		contentPane.add(pnlButton, BorderLayout.SOUTH);
@@ -166,27 +137,62 @@ public class ParserUI extends JFrame {
 		btnRefresh = new JButton("Refresh");
 		btnRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				refreshMailList();
+				refreshList();
 			}
 		});
 		btnRefresh.setToolTipText("Refresh E-Mail List");
 		pnlButton.add(btnRefresh);
 
-		btnReset = new JButton("Reset");
+		JButton btnReset = new JButton("Reset");
 		btnReset.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				parseMail();
 			}
 		});
 		btnReset.setToolTipText("Reset all the modifications made on the form");
 		pnlButton.add(btnReset);
 
-		btnCreate = new JButton("Create Booking");
+		JButton btnCreate = new JButton("Create Booking");
 		btnCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				ParserController.postBooking();
 			}
 		});
 		btnCreate.setToolTipText("Create a booking with provided information");
 		pnlButton.add(btnCreate);
+
+		// init controller thread
+		ParserController controller = new ParserController(model, pnlContent);
+
+		JScrollPane scrContent = new JScrollPane();
+		scrContent.setBorder(new LineBorder(new Color(130, 135, 144), 1, true));
+		GridBagConstraints gbc_scrContent = new GridBagConstraints();
+		gbc_scrContent.fill = GridBagConstraints.BOTH;
+		gbc_scrContent.gridx = 1;
+		gbc_scrContent.gridy = 1;
+		pnlTop.add(scrContent, gbc_scrContent);
+
+		txtMail = new JTextArea();
+		scrContent.setViewportView(txtMail);
+		txtMail.setVerifyInputWhenFocusTarget(false);
+		txtMail.setEditable(false);
+		txtMail.setWrapStyleWord(true);
+		Thread t = new Thread(controller);
+		t.start();
 	}
 
+	private void parseMail() {
+		String msg = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 4);
+		String parser = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 3);
+		ParserController.fillContent(msg, parser);
+		txtMail.setText(msg);
+	}
+
+	private void refreshList() {
+		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+		btnRefresh.setEnabled(false);
+		ParserController.refreshMailList();
+		btnRefresh.setEnabled(true);
+		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+	}
 }

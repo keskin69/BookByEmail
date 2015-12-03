@@ -23,7 +23,6 @@ import yellowzebra.util.Logger;
 public class MailReader {
 	private static MailReader instance = null;
 	private static Store store = null;
-	private static String toFolder = null;
 	private static Properties props = null;
 	private static final List<Class<?>> classes = ClassFinder.find("yellowzebra.mail");
 
@@ -42,7 +41,6 @@ public class MailReader {
 			ClassLoader loader = Thread.currentThread().getContextClassLoader();
 			InputStream stream = loader.getResourceAsStream("smtp.properties");
 			props.load(stream);
-			toFolder = props.getProperty("processed.directory");
 		} catch (IOException e) {
 			Logger.err("Cannot read smtp.properties file");
 		}

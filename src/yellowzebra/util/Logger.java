@@ -6,11 +6,11 @@ public class Logger {
 	}
 
 	public static void err(String str) {
-		System.out.println(str);
+		System.out.println("ERROR:" + str);
 	}
 
 	public static void err(String err, String str) {
 		System.out.println(str);
-		System.out.println("Check following exception" + "\n" + err);
+		System.out.println("Check following exception:" + "\n" + err);
 	}
 }

@@ -17,7 +17,7 @@ import io.swagger.client.ApiException;
 import io.swagger.client.model.Booking;
 import yellowzebra.booking.CreateBooking;
 import yellowzebra.parser.AParser;
-import yellowzebra.util.Config;
+import yellowzebra.util.MailConfig;
 
 public class ParserController implements Runnable {
 	private static DefaultTableModel model = null;
@@ -45,7 +45,7 @@ public class ParserController implements Runnable {
 				}
 				String subject = msg.getSubject();
 				String content = msg.getContent().toString();
-				String date = Config.DEFAULT_DATE.format(msg.getReceivedDate()).toString();
+				String date = MailConfig.DEFAULT_DATE.format(msg.getReceivedDate()).toString();
 
 				model.addRow(new Object[] { from, subject, date, parser, content });
 			}
@@ -106,7 +106,7 @@ public class ParserController implements Runnable {
 		JTextField txt;
 
 		// booking date
-		String startTime = Config.DEFAULT_DATE.format(booking.getStartTime());
+		String startTime = MailConfig.DEFAULT_DATE.format(booking.getStartTime());
 		lbl = new JLabel("Booking Date");
 		panel.add(lbl);
 		txt = new JTextField(startTime);

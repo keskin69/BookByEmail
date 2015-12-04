@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import io.swagger.client.ApiException;
 import io.swagger.client.api.SettingsApi;
 import io.swagger.client.model.Product;
+import io.swagger.client.model.Product.TypeEnum;
 import io.swagger.client.model.ProductList;
 
 public class ProductTools extends ArrayList<Product> {
@@ -29,12 +30,12 @@ public class ProductTools extends ArrayList<Product> {
 		ProductList list = new ProductList();
 
 		try {
-			list = settingsApi.settingsProductsGet(Product.TypeEnum.FIXED.toString(), 20, null, 1);
+			list = settingsApi.settingsProductsGet(null, 20, null, 1);
 			String pageNavigationToken = list.getInfo().getPageNavigationToken();
 			this.addAll(list.getData());
 
 			for (int i = 2; i < list.getInfo().getTotalPages(); i++) {
-				list = settingsApi.settingsProductsGet(Product.TypeEnum.FIXED.toString(), 20, pageNavigationToken, i);
+				list = settingsApi.settingsProductsGet(null, 20, pageNavigationToken, i);
 				this.addAll(list.getData());
 			}
 		} catch (ApiException e) {
@@ -53,6 +54,16 @@ public class ProductTools extends ArrayList<Product> {
 		return null;
 	}
 
+	public TypeEnum getProductType(String name) {
+		for (Product p : this) {
+			if (p.getName().equals(name)) {
+				return p.getType();
+			}
+		}
+
+		return null;
+	}
+
 	public int getDuration(String name) {
 		for (Product p : this) {
 			if (p.getName().equals(name)) {
@@ -65,8 +76,19 @@ public class ProductTools extends ArrayList<Product> {
 
 	public void dump() {
 		for (Product p : this) {
-			System.out.println(p.getName() + ":" + p.getProductId());
+			System.out.println(p.getName() + ":" + p.getProductId() + ":" + p.getType());
 		}
 	}
 
+	public static void main(String[] args) {
+		String productId = ProductTools.getInstance().getProductId("Dinner Cruise with Live Music");
+		TypeEnum prodType = ProductTools.getInstance().getProductType("Dinner Cruise with Live Music");
+
+		if (prodType == TypeEnum.FIXED) {
+			String eventId = new EventTools().getEventId(productId, "2015-12-12", "19:00");
+			System.out.println(productId + ":" + eventId);
+		} else {
+			System.out.println(productId);
+		}
+	}
 }

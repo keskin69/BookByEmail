@@ -11,6 +11,7 @@ import io.swagger.client.ApiException;
 import io.swagger.client.model.Booking;
 import io.swagger.client.model.Customer;
 import io.swagger.client.model.PhoneNumber;
+import io.swagger.client.model.PhoneNumber.TypeEnum;
 import yellowzebra.booking.CreateBooking;
 import yellowzebra.util.Logger;
 
@@ -22,6 +23,7 @@ public abstract class AParser implements IParser {
 		ArrayList<PhoneNumber> list = new ArrayList<PhoneNumber>();
 		PhoneNumber phoneNumber = new PhoneNumber();
 		phoneNumber.setNumber(phone.trim());
+		phoneNumber.setType(TypeEnum.MOBILE);
 		list.add(phoneNumber);
 
 		return list;
@@ -32,6 +34,9 @@ public abstract class AParser implements IParser {
 	}
 
 	public void dump(Booking booking) {
+		System.out.println("Product:");
+		System.out.println(booking.getProductId() + "\t" + booking.getEventId());
+		System.out.println(booking.getStartTime().toString());
 		Customer customer = booking.getCustomer();
 		System.out.println("Customer:\n" + customer.getFirstName() + " " + customer.getLastName());
 		System.out.println(customer.getEmailAddress() + "\t" + customer.getPhoneNumbers().get(0).getNumber());
@@ -75,6 +80,32 @@ public abstract class AParser implements IParser {
 		return false;
 	}
 
+	public static String getCustomerType(String in) {
+		in = in.toUpperCase().trim();
+
+		if (in.startsWith("ADULTS")) {
+			return "Cadults";
+		} else if (in.startsWith("CHILDREN")) {
+			return "Cchildren";
+		} else if (in.startsWith("INFANTS")) {
+			return "Cinfants";
+		}
+
+		Logger.err("Unknown customer type" + in);
+
+		return null;
+	}
+
+	public static String[] split(String str, String delim) {
+		String token[] = str.split(delim);
+
+		for (int i = 0; i < token.length; i++) {
+			token[i] = token[i].trim();
+		}
+
+		return token;
+	}
+
 	public static String skipUntil(String msg, String key) {
 		int iS = msg.indexOf(key);
 		int iE = msg.indexOf("\n", iS + 1);
@@ -85,13 +116,13 @@ public abstract class AParser implements IParser {
 	public static String strip(String msg, String key) {
 		int iS = msg.indexOf(key);
 
-		return msg.substring(iS + 1);
+		return msg.substring(iS+key.length());
 	}
 
 	public static String findLine(String msg, String key) {
 		int iS = msg.indexOf(key);
 		int iE = msg.indexOf("\n", iS + 1);
 
-		return msg.substring(iS, iE);
+		return msg.substring(iS + key.length() + 1, iE).trim();
 	}
 }

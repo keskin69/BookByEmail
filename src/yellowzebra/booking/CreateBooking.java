@@ -1,6 +1,8 @@
 package yellowzebra.booking;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import io.swagger.client.ApiException;
 import io.swagger.client.api.BookingsApi;
@@ -9,6 +11,9 @@ import io.swagger.client.model.Booking;
 import io.swagger.client.model.Customer;
 import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
+import io.swagger.client.model.Product.TypeEnum;
+import yellowzebra.util.Logger;
+import yellowzebra.util.MailConfig;
 
 public class CreateBooking {
 
@@ -27,10 +32,22 @@ public class CreateBooking {
 		Booking booking = new Booking();
 
 		String productId = ProductTools.getInstance().getProductId(product);
-		String eventId = new EventTools().getEventId(productId, date, time);
-
+		TypeEnum prodType = ProductTools.getInstance().getProductType(product);
 		booking.setProductId(productId);
-		booking.setEventId(eventId);
+
+		if (prodType == TypeEnum.FIXED) {
+			String eventId = new EventTools().getEventId(productId, date, time);
+			booking.setEventId(eventId);
+		} else {
+			Date startDate;
+			try {
+				startDate = MailConfig.DEFAULT_DATE.parse(date + " " + time);
+				booking.setStartTime(startDate);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		booking.setCustomer(customer);
 		booking.setInitialPayments(null);
@@ -73,13 +90,22 @@ public class CreateBooking {
 	}
 
 	public static void main(String[] args) {
-		Customer testCustomer = CreateBooking.createCustomer("Custo2", "Santa2", "santa@gmail.com");
+		Customer testCustomer = CreateBooking.createCustomer("Custo5", "Santa5", "santa@gmail.com");
 		// test.postCustomer(testCustomer);
 		try {
-			CreateBooking.postBooking(CreateBooking.createBooking(testCustomer, "Tour", "2015-12-02", "09:00"));
+			Booking booking = null;
+
+			// booking = CreateBooking.createBooking(testCustomer, "Tour",
+			// "2015-12-12", "09:00");
+			booking = CreateBooking.createBooking(testCustomer, "Dinner Cruise with Live Music", "2015-12-15", "19:00");
+			CreateBooking.postBooking(booking);
+
 		} catch (ApiException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
+			Logger.err(e.getMessage());
 		}
+
+		System.out.println("Posting done...");
 	}
 }

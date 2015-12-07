@@ -25,7 +25,7 @@ public class MailReader {
 	private static MailReader instance = null;
 	private static Store store = null;
 	private static Properties props = null;
-	private static final List<Class<?>> classes = ClassFinder.find("yellowzebra.mail");
+	private static final List<Class<?>> classes = ClassFinder.find("yellowzebra.parser");
 
 	public static MailReader getInstance() {
 		if (instance == null) {

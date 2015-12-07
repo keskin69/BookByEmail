@@ -2,6 +2,7 @@ package yellowzebra.ui;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.mail.Address;
@@ -9,26 +10,31 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+
 import javax.swing.JTextField;
+
 import javax.swing.table.DefaultTableModel;
 
 import io.swagger.client.ApiException;
 import io.swagger.client.model.Booking;
+import io.swagger.client.model.PeopleNumber;
+import io.swagger.client.model.PhoneNumber;
 import yellowzebra.booking.CreateBooking;
 import yellowzebra.parser.AParser;
 import yellowzebra.util.MailConfig;
+import yellowzebra.util.ParserUtils;
 
 public class ParserController implements Runnable {
 	private static DefaultTableModel model = null;
-	private static JPanel panel = null;
+	private static SpringPanel panel = null;
+	private static boolean isPaused = false;
 
-	public ParserController(DefaultTableModel model, JPanel panel) {
+	public ParserController(DefaultTableModel model, SpringPanel panel) {
 		ParserController.model = model;
 		ParserController.panel = panel;
 	}
 
-	public static void refreshMailList() {
+	public static synchronized  void refreshMailList() {
 		model.setRowCount(0);
 
 		ArrayList<Entry<String, Message>> list = null;
@@ -44,7 +50,9 @@ public class ParserController implements Runnable {
 					break;
 				}
 				String subject = msg.getSubject();
-				String content = msg.getContent().toString();
+				// TODO
+				// String content = msg.getContent().toString();
+				String content = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\expedia.txt");
 				String date = MailConfig.DEFAULT_DATE.format(msg.getReceivedDate()).toString();
 
 				model.addRow(new Object[] { from, subject, date, parser, content });
@@ -58,7 +66,7 @@ public class ParserController implements Runnable {
 		}
 	}
 
-	public static void postBooking() {
+	public static synchronized  void postBooking() {
 		Booking booking = component2Booking();
 		try {
 			CreateBooking.postBooking(booking);
@@ -68,8 +76,7 @@ public class ParserController implements Runnable {
 		}
 	}
 
-	public static void fillContent(String msg, String parser) {
-
+	public static synchronized void fillContent(String msg, String parser) {
 		Class<?> c;
 		AParser p = null;
 		try {
@@ -88,8 +95,7 @@ public class ParserController implements Runnable {
 		}
 
 		if (p != null) {
-			Booking booking = null;
-			booking = p.parse(msg);
+			Booking booking = p.parse(msg);
 			booking2Component(booking);
 		}
 	}
@@ -98,41 +104,80 @@ public class ParserController implements Runnable {
 		return null;
 	}
 
+	public static void isPaused(boolean p) {
+		isPaused = p;
+	}
+
 	// Create the Swing components regarding the booking content
 	private static void booking2Component(Booking booking) {
-		panel.removeAll();
+		panel.reset();
+		
+		JTextField txt = null;
+		String str = null;
+		JLabel lbl = null;
 
-		JLabel lbl;
-		JTextField txt;
+		// booking info
+		str = booking.getProductName();
+		lbl = new JLabel("Tour Name");
+		txt = new JTextField(str);
+		panel.addRow(lbl, txt);
 
 		// booking date
-		String startTime = MailConfig.DEFAULT_DATE.format(booking.getStartTime());
-		lbl = new JLabel("Booking Date");
-		panel.add(lbl);
-		txt = new JTextField(startTime);
-		txt.setEditable(false);
-		panel.add(txt);
-
-		// booking time
+		str = MailConfig.DEFAULT_DATE.format(booking.getStartTime());
+		lbl = new JLabel("Booking Time");
+		txt = new JTextField(str);
+		panel.addRow(lbl, txt);
 
 		// number of person
+		lbl = new JLabel("Participant Information:");
+		panel.addRow(lbl, null);
+
+		for (PeopleNumber n : booking.getParticipants().getNumbers()) {
+			lbl = new JLabel(n.getPeopleCategoryId().toString().substring(1));
+			txt = new JTextField(n.getNumber().toString());
+			panel.addRow(lbl, txt);
+		}
+
+		lbl = new JLabel("Customer Information:");
+		panel.addRow(lbl, null);
 
 		// customer name
+		lbl = new JLabel("Name");
+		txt = new JTextField(booking.getCustomer().getFirstName());
+		panel.addRow(lbl, txt);
 
 		// customer lastname
+		lbl = new JLabel("Last Name");
+		txt = new JTextField(booking.getCustomer().getLastName());
+		panel.addRow(lbl, txt);
 
 		// customer e-mail
+		lbl = new JLabel("E-Mail");
+		txt = new JTextField(booking.getCustomer().getEmailAddress());
+		panel.addRow(lbl, txt);
 
 		// customer phone
+		lbl = new JLabel("Phone Number");
 
-		panel.repaint();
+		List<PhoneNumber> list = booking.getCustomer().getPhoneNumbers();
+		if (list != null) {
+			txt = new JTextField(list.get(0).getNumber());
+		}
+		panel.addRow(lbl, txt);
+
+		// details
+
+		panel.revalidate();
+		panel.getTopLevelAncestor().validate();
 	}
 
 	public void run() {
 		// refresh the mail list in every minute once
 		try {
+			if (!isPaused) {
+				refreshMailList();
+			}
 			Thread.sleep(1 * 60 * 1000);
-			refreshMailList();
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

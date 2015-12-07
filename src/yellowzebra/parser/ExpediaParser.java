@@ -77,7 +77,8 @@ public class ExpediaParser extends AParser {
 		line = findLine(msg, "Item");
 		token = split(line, "-");
 		String product = token[0];
-
+		booking.setProductName(product);
+		
 		// time
 		token = split(token[1], " ");
 		String time = token[0];
@@ -134,7 +135,6 @@ public class ExpediaParser extends AParser {
 		booking.setBookingNumber(null);
 
 		return booking;
-
 	}
 
 	public static void main(String[] args) {
@@ -152,8 +152,7 @@ public class ExpediaParser extends AParser {
 		try {
 			CreateBooking.postBooking(booking);
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			Logger.err(e.getMessage() + ":" + e.getCode());
+			Logger.err(e.getMessage());
 		}
 
 	}

@@ -27,7 +27,9 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
 import com.alee.laf.WebLookAndFeel;
-import javax.swing.JLabel;
+
+import io.swagger.client.ApiException;
+import yellowzebra.util.Logger;
 
 public class ParserUI extends JFrame {
 
@@ -36,10 +38,11 @@ public class ParserUI extends JFrame {
 	 */
 	private static final long serialVersionUID = 1022086231912876450L;
 	private JButton btnRefresh = null;
-	private JTable tblMail = null;
+	private static JTable tblMail = null;
 	private static SpringPanel pnlContent = null;
 	private JTextArea txtMail;
-	private JLabel lblStatus = null;
+	private LinkLabel lblStatus = null;
+	private JButton btnPost = null;
 
 	private static DefaultTableModel model = new DefaultTableModel(new Object[][] {},
 			new String[] { "Sender", "Subject", "Date", "Parser", "Message" }) {
@@ -64,6 +67,9 @@ public class ParserUI extends JFrame {
 			public void run() {
 				try {
 					ParserUI frame = new ParserUI();
+
+					tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
+					tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
 
 					// init controller thread
 					ParserController controller = new ParserController(model, pnlContent);
@@ -142,17 +148,14 @@ public class ParserUI extends JFrame {
 		});
 		pnlButton.add(btnReset);
 
-		JButton btnPost = new JButton("Create Booking");
+		btnPost = new JButton("Create Booking");
 		btnPost.setToolTipText("Create a booking with provided information");
 		btnPost.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				ParserController.postBooking();
+				postBooking();
 			}
 		});
 		pnlButton.add(btnPost);
-
-		tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
-		tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
 
 		tblMail.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
@@ -187,37 +190,57 @@ public class ParserUI extends JFrame {
 		contentPane.add(pnlStatus, BorderLayout.SOUTH);
 		pnlStatus.setLayout(new BorderLayout(0, 0));
 
-		lblStatus = new JLabel("Ready");
+		lblStatus = new LinkLabel("Ready");
 		pnlStatus.add(lblStatus);
 	}
 
 	private void parseMail() {
 		if (tblMail.getSelectedRow() >= 0) {
-			setStatus("Parsing selected e-mail to generate booking information");
+			lblStatus.setText("Parsing selected e-mail to generate booking information");
 			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 			String msg = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 4);
 			String parser = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 3);
 			ParserController.fillContent(msg, parser);
 			txtMail.setText(msg);
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-			setStatus("Ready");
+			lblStatus.setText("Ready");
 		}
 	}
 
-	public void setStatus(String str) {
-		lblStatus.setText(str);
-		lblStatus.paintImmediately(lblStatus.getVisibleRect());
+	private void postBooking() {
+		ParserController.isPaused(true);
+		btnPost.setEnabled(false);
+		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+		lblStatus.setText("Sending booking information to Booking engine");
+		try {
+			ParserController.postBooking();
+			lblStatus.setText("Booking created");
+		} catch (ApiException e) {
+			if (e.getCode() != 201) {
+				Logger.err(e.getMessage());
+				lblStatus.setText(e.getMessage());
+			} else {
+				String tokens[] = e.getMessage().split("/");
+				String bookingId = tokens[tokens.length-1];
+				lblStatus.setText("<HTML>Booking created <a href=>" + bookingId + "</a></HTML>", e.getMessage());
+			}
+
+		}
+
+		btnPost.setEnabled(true);
+		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		ParserController.isPaused(false);
 	}
 
 	private void refreshList() {
 		ParserController.isPaused(true);
-		setStatus("Reading e-mails from the server");
+		lblStatus.setText("Reading e-mails from the server");
 		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 		btnRefresh.setEnabled(false);
 		ParserController.refreshMailList();
 		btnRefresh.setEnabled(true);
 		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-		setStatus("Ready");
+		lblStatus.setText("Ready");
 		ParserController.isPaused(false);
 	}
 }

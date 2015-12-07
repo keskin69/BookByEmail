@@ -97,13 +97,17 @@ public class CreateBooking {
 
 			// booking = CreateBooking.createBooking(testCustomer, "Tour",
 			// "2015-12-12", "09:00");
-			booking = CreateBooking.createBooking(testCustomer, "Dinner Cruise with Live Music", "2015-12-15", "19:00");
+			booking = CreateBooking.createBooking(testCustomer, "Dinner Cruise with Live Music", "2015-12-22", "19:00");
 			CreateBooking.postBooking(booking);
 
 		} catch (ApiException e) {
 			// TODO Auto-generated catch block
 			// e.printStackTrace();
-			Logger.err(e.getMessage());
+			if (e.getCode() == 201) {
+				Logger.log(e.getMessage());
+			} else {
+				Logger.err(e.getMessage());
+			}
 		}
 
 		System.out.println("Posting done...");

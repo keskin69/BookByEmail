@@ -28,13 +28,14 @@ public class ParserController implements Runnable {
 	private static DefaultTableModel model = null;
 	private static SpringPanel panel = null;
 	private static boolean isPaused = false;
+	private static Booking booking = null;
 
 	public ParserController(DefaultTableModel model, SpringPanel panel) {
 		ParserController.model = model;
 		ParserController.panel = panel;
 	}
 
-	public static synchronized  void refreshMailList() {
+	public static synchronized void refreshMailList() {
 		model.setRowCount(0);
 
 		ArrayList<Entry<String, Message>> list = null;
@@ -66,14 +67,9 @@ public class ParserController implements Runnable {
 		}
 	}
 
-	public static synchronized  void postBooking() {
+	public static synchronized void postBooking() throws ApiException {
 		Booking booking = component2Booking();
-		try {
-			CreateBooking.postBooking(booking);
-		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		CreateBooking.postBooking(booking);
 	}
 
 	public static synchronized void fillContent(String msg, String parser) {
@@ -95,13 +91,14 @@ public class ParserController implements Runnable {
 		}
 
 		if (p != null) {
-			Booking booking = p.parse(msg);
+			booking = p.parse(msg);
 			booking2Component(booking);
+
 		}
 	}
 
 	private static Booking component2Booking() {
-		return null;
+		return booking;
 	}
 
 	public static void isPaused(boolean p) {
@@ -111,7 +108,7 @@ public class ParserController implements Runnable {
 	// Create the Swing components regarding the booking content
 	private static void booking2Component(Booking booking) {
 		panel.reset();
-		
+
 		JTextField txt = null;
 		String str = null;
 		JLabel lbl = null;
@@ -175,9 +172,9 @@ public class ParserController implements Runnable {
 		// refresh the mail list in every minute once
 		try {
 			if (!isPaused) {
-				refreshMailList();
+				//refreshMailList();
 			}
-			Thread.sleep(1 * 60 * 1000);
+			Thread.sleep(5 * 60 * 1000);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

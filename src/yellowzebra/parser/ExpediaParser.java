@@ -16,6 +16,7 @@ import yellowzebra.booking.EventTools;
 import yellowzebra.booking.ProductTools;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MailConfig;
+import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
 
 public class ExpediaParser extends AParser {
@@ -38,8 +39,9 @@ public class ExpediaParser extends AParser {
 		return msg;
 	}
 
-	public Booking parse(String msg) {
-		Booking booking = new Booking();
+	public MyBooking parse(String msg) {
+		MyBooking booking = new MyBooking();
+		booking.agent = "Expedia";
 		String line = null;
 		String token[] = null;
 		String field = null;
@@ -49,7 +51,7 @@ public class ExpediaParser extends AParser {
 		// Setting customer
 		Customer cus = new Customer();
 
-		line = findLine(msg, "Primary Redeemer");
+		line = findLine(msg, "Primary Redeemer:");
 		token = split(line, ",");
 		cus.setPhoneNumbers(setPhone(token[1]));
 		cus.setEmailAddress(token[2]);
@@ -62,7 +64,7 @@ public class ExpediaParser extends AParser {
 		booking.setCustomer(cus);
 
 		// date
-		line = findLine(msg, "Valid Days");
+		line = findLine(msg, "Valid Days:");
 		token = split(line, "-");
 		field = token[0];
 		String date = null;
@@ -74,11 +76,11 @@ public class ExpediaParser extends AParser {
 		}
 
 		// product
-		line = findLine(msg, "Item");
+		line = findLine(msg, "Item:");
 		token = split(line, "-");
 		String product = token[0];
 		booking.setProductName(product);
-		
+
 		// time
 		token = split(token[1], " ");
 		String time = token[0];
@@ -115,7 +117,7 @@ public class ExpediaParser extends AParser {
 		booking.setResources(null);
 
 		// set participants
-		line = findLine(msg, "Travellers");
+		line = findLine(msg, "Travellers:");
 		line = strip(line, "-- ");
 		token = split(line, ",");
 
@@ -134,6 +136,11 @@ public class ExpediaParser extends AParser {
 		booking.setParticipants(participants);
 		booking.setBookingNumber(null);
 
+		line = findLine(msg, "Voucher #:");
+		token=split(line, "Itin");
+		booking.voucherNumber = token[0];
+		booking.setTitle(booking.agent + "-" +  booking.voucherNumber);
+		
 		return booking;
 	}
 

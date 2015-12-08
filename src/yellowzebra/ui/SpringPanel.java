@@ -1,13 +1,9 @@
 package yellowzebra.ui;
 
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.border.LineBorder;
@@ -25,6 +21,7 @@ public class SpringPanel extends JPanel {
 		setBorder(new LineBorder(new Color(130, 135, 144), 1, true));
 		layout = new SpringLayout();
 		setLayout(layout);
+
 	}
 
 	public void reset() {
@@ -37,25 +34,29 @@ public class SpringPanel extends JPanel {
 
 	public void addRow(JComponent comp1, JComponent comp2) {
 		if (comp2 == null) {
-			row++;
+			row += HEIGHT / 2;
 			((JLabel) comp1).setForeground(Color.DARK_GRAY);
 		}
 
+		if (comp1 instanceof JLabel) {
+			((JLabel) comp1).setText(((JLabel) comp1).getText() + ":");
+			comp1.setForeground(Color.DARK_GRAY);
+		}
 		if (comp2 instanceof JTextField) {
 			// ((JTextField) comp2).setPreferredSize(new Dimension((int)
 			// (comp2.getWidth() * 1.2), comp2.getHeight()));
 		}
 
-		layout.putConstraint(SpringLayout.NORTH, comp1, 10 + (row * HEIGHT), SpringLayout.NORTH, this);
+		layout.putConstraint(SpringLayout.NORTH, comp1, 10 + row, SpringLayout.NORTH, this);
 		layout.putConstraint(SpringLayout.WEST, comp1, 10, SpringLayout.WEST, this);
 		add(comp1);
 
 		if (comp2 != null) {
-			layout.putConstraint(SpringLayout.NORTH, comp2, 5 + (row * HEIGHT), SpringLayout.NORTH, this);
+			layout.putConstraint(SpringLayout.NORTH, comp2, 5 + row, SpringLayout.NORTH, this);
 			layout.putConstraint(SpringLayout.WEST, comp2, 5, SpringLayout.EAST, comp1);
 			add(comp2);
 		}
 
-		row++;
+		row += HEIGHT;
 	}
 }

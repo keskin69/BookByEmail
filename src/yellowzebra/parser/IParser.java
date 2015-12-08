@@ -1,9 +1,11 @@
 package yellowzebra.parser;
 
-import io.swagger.client.model.Booking;
+import yellowzebra.util.MyBooking;
 
 public interface IParser {
 	boolean isApplicable(String subject, String from);
+
 	String DELIM = ",";
-	Booking parse(String msg);
+
+	MyBooking parse(String msg);
 }

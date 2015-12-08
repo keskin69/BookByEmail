@@ -16,19 +16,19 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
 import io.swagger.client.ApiException;
-import io.swagger.client.model.Booking;
 import io.swagger.client.model.PeopleNumber;
 import io.swagger.client.model.PhoneNumber;
 import yellowzebra.booking.CreateBooking;
 import yellowzebra.parser.AParser;
 import yellowzebra.util.MailConfig;
+import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
 
 public class ParserController implements Runnable {
 	private static DefaultTableModel model = null;
 	private static SpringPanel panel = null;
 	private static boolean isPaused = false;
-	private static Booking booking = null;
+	private static MyBooking booking = null;
 
 	public ParserController(DefaultTableModel model, SpringPanel panel) {
 		ParserController.model = model;
@@ -68,7 +68,7 @@ public class ParserController implements Runnable {
 	}
 
 	public static synchronized void postBooking() throws ApiException {
-		Booking booking = component2Booking();
+		MyBooking booking = component2Booking();
 		CreateBooking.postBooking(booking);
 	}
 
@@ -97,8 +97,13 @@ public class ParserController implements Runnable {
 		}
 	}
 
-	private static Booking component2Booking() {
-		return booking;
+	private static MyBooking component2Booking() {
+		MyBooking finalBooking = booking;
+
+		finalBooking.getCustomer()
+				.setFirstName(booking.getCustomer().getLastName() + " " + booking.getCustomer().getLastName());
+		finalBooking.getCustomer().setLastName(booking.agent + "-" + booking.voucherNumber);
+		return finalBooking;
 	}
 
 	public static void isPaused(boolean p) {
@@ -106,12 +111,24 @@ public class ParserController implements Runnable {
 	}
 
 	// Create the Swing components regarding the booking content
-	private static void booking2Component(Booking booking) {
+	private static void booking2Component(MyBooking booking) {
 		panel.reset();
 
 		JTextField txt = null;
 		String str = null;
 		JLabel lbl = null;
+
+		// agent
+		str = booking.agent;
+		lbl = new JLabel("Tour Agent");
+		txt = new JTextField(str);
+		panel.addRow(lbl, txt);
+
+		// voucher number
+		str = booking.voucherNumber;
+		lbl = new JLabel("Voucher Number(s)");
+		txt = new JTextField(str);
+		panel.addRow(lbl, txt);
 
 		// booking info
 		str = booking.getProductName();
@@ -126,7 +143,7 @@ public class ParserController implements Runnable {
 		panel.addRow(lbl, txt);
 
 		// number of person
-		lbl = new JLabel("Participant Information:");
+		lbl = new JLabel("Participant Information");
 		panel.addRow(lbl, null);
 
 		for (PeopleNumber n : booking.getParticipants().getNumbers()) {
@@ -135,7 +152,7 @@ public class ParserController implements Runnable {
 			panel.addRow(lbl, txt);
 		}
 
-		lbl = new JLabel("Customer Information:");
+		lbl = new JLabel("Customer Information");
 		panel.addRow(lbl, null);
 
 		// customer name
@@ -163,6 +180,10 @@ public class ParserController implements Runnable {
 		panel.addRow(lbl, txt);
 
 		// details
+		str = booking.details;
+		lbl = new JLabel("Details/Notes");
+		txt = new JTextField(str);
+		panel.addRow(lbl, txt);
 
 		panel.revalidate();
 		panel.getTopLevelAncestor().validate();
@@ -172,7 +193,7 @@ public class ParserController implements Runnable {
 		// refresh the mail list in every minute once
 		try {
 			if (!isPaused) {
-				//refreshMailList();
+				// refreshMailList();
 			}
 			Thread.sleep(5 * 60 * 1000);
 		} catch (InterruptedException e) {

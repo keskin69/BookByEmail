@@ -159,7 +159,6 @@ public class ParserUI extends JFrame {
 
 		tblMail.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
-				// TODO warn the user
 				parseMail();
 			}
 		});
@@ -224,7 +223,6 @@ public class ParserUI extends JFrame {
 				String bookingId = tokens[tokens.length-1];
 				lblStatus.setText("<HTML>Booking created <a href=>" + bookingId + "</a></HTML>", e.getMessage());
 			}
-
 		}
 
 		btnPost.setEnabled(true);

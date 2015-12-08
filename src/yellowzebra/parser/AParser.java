@@ -8,12 +8,12 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 
 import io.swagger.client.ApiException;
-import io.swagger.client.model.Booking;
 import io.swagger.client.model.Customer;
 import io.swagger.client.model.PhoneNumber;
 import io.swagger.client.model.PhoneNumber.TypeEnum;
 import yellowzebra.booking.CreateBooking;
 import yellowzebra.util.Logger;
+import yellowzebra.util.MyBooking;
 
 public abstract class AParser implements IParser {
 	public String subjectReg = null;
@@ -33,7 +33,7 @@ public abstract class AParser implements IParser {
 		return msg;
 	}
 
-	public void dump(Booking booking) {
+	public void dump(MyBooking booking) {
 		System.out.println("Product:");
 		System.out.println(booking.getProductId() + "\t" + booking.getEventId());
 		System.out.println(booking.getStartTime().toString());
@@ -53,7 +53,7 @@ public abstract class AParser implements IParser {
 	}
 
 	public final boolean postBooking(Message msg) {
-		Booking booking = null;
+		MyBooking booking = null;
 		try {
 			booking = parse(msg.getContent().toString());
 		} catch (IOException e1) {

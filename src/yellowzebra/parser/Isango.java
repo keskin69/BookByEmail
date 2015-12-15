@@ -107,7 +107,7 @@ public class Isango extends AParser {
 
 		msg = skipUntil(msg, "Special Request");
 		int idx = msg.indexOf("End customer Total price:");
-		booking.details = msg.substring(0, idx);
+		booking.details = msg.substring(0, idx).trim();
 
 		// Voucher
 		token = subject.split(" ");

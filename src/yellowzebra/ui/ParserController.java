@@ -1,7 +1,6 @@
 package yellowzebra.ui;
 
 import java.awt.Color;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -44,19 +43,15 @@ public class ParserController implements Runnable {
 				Message msg = (Message) e.getValue();
 
 				String token[] = parser.split("\\.");
-				String from = token[token.length-1];
+				String from = token[token.length - 1];
 				String subject = msg.getSubject();
-				String content = msg.getContent().toString();
 				String date = MailConfig.DEFAULT_DATE.format(msg.getReceivedDate()).toString();
 
-				model.addRow(new Object[] { from, subject, date, parser, content });
+				model.addRow(new Object[] { from, subject, date, parser, msg });
 			}
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		}
 	}
 
@@ -174,10 +169,12 @@ public class ParserController implements Runnable {
 
 		// details
 		str = booking.details;
-		lbl = new JLabel("Details/Notes");
-		JTextArea txa = new JTextArea(str);
-		txa.setBorder(new LineBorder(new Color(180, 135, 144), 1, true));
-		panel.addRow(lbl, txa);
+		if (str != null && str.length() > 0) {
+			lbl = new JLabel("Details/Notes");
+			JTextArea txa = new JTextArea(str);
+			txa.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+			panel.addRow(lbl, txa);
+		}
 
 		panel.setLayout();
 	}

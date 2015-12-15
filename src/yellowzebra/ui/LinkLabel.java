@@ -40,7 +40,7 @@ public class LinkLabel extends JLabel {
 	}
 
 	public void setText(String txt) {
-		super.setText(txt);
+		super.setText(" " + txt);
 		url = null;
 		paintImmediately(getVisibleRect());
 	}

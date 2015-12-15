@@ -15,14 +15,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
+import java.io.IOException;
 
+import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.TableModelEvent;
@@ -44,7 +46,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	private JButton btnRefresh = null;
 	private static JTable tblMail = null;
 	private static SpringPanel pnlContent = null;
-	private JTextArea txtMail;
+	private HTMLPanel txtMail;
 	private LinkLabel lblStatus = null;
 	private JButton btnPost = null;
 
@@ -76,7 +78,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 
 					tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
 					tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
-					tblMail.getColumnModel().getColumn(0).setPreferredWidth(110);
+					tblMail.getColumnModel().getColumn(0).setPreferredWidth(100);
 					tblMail.getColumnModel().getColumn(1).setPreferredWidth(240);
 					tblMail.getColumnModel().getColumn(2).setPreferredWidth(110);
 
@@ -106,7 +108,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	public ParserUI() {
 		setTitle("Yellow Zebra Booking Tool V1.0");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, 850, 600);
+		setBounds(0, 0, 850, 650);
 		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -118,14 +120,13 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		JPanel pnlTop = new JPanel();
 		contentPane.add(pnlTop, BorderLayout.CENTER);
 		GridBagLayout gbl_pnlTop = new GridBagLayout();
-		gbl_pnlTop.columnWeights = new double[] { 1.0, 1.5 };
+		gbl_pnlTop.columnWeights = new double[] { 1.0, 1.6 };
 		gbl_pnlTop.rowWeights = new double[] { 1.3, 1.0 };
 		pnlTop.setLayout(gbl_pnlTop);
 
 		JPanel panel = new JPanel();
 		GridBagConstraints gbc_panel = new GridBagConstraints();
 		gbc_panel.fill = GridBagConstraints.BOTH;
-		gbc_panel.gridheight = 2;
 		gbc_panel.insets = new Insets(0, 0, 0, 5);
 		gbc_panel.gridx = 0;
 		gbc_panel.gridy = 0;
@@ -181,31 +182,30 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			}
 		});
 
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBorder(new LineBorder(new Color(130, 135, 144), 1, true));
+		JScrollPane scrBooking = new JScrollPane();
+		scrBooking.setBorder(new LineBorder(new Color(130, 135, 144), 1, true));
 		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 		gbc_scrollPane.fill = GridBagConstraints.BOTH;
 		gbc_scrollPane.insets = new Insets(0, 0, 5, 0);
 		gbc_scrollPane.gridx = 1;
 		gbc_scrollPane.gridy = 0;
-		pnlTop.add(scrollPane, gbc_scrollPane);
+		pnlTop.add(scrBooking, gbc_scrollPane);
 
 		pnlContent = new SpringPanel();
-		scrollPane.setViewportView(pnlContent);
+		scrBooking.setViewportView(pnlContent);
 
-		JScrollPane scrContent = new JScrollPane();
-		scrContent.setBorder(new LineBorder(new Color(130, 135, 144), 1, true));
+		JScrollPane scrMailContent = new JScrollPane();
+		scrMailContent.setBorder(new LineBorder(new Color(130, 135, 144), 1, true));
 		GridBagConstraints gbc_scrContent = new GridBagConstraints();
+		gbc_scrContent.gridwidth = 2;
 		gbc_scrContent.fill = GridBagConstraints.BOTH;
 		gbc_scrContent.insets = new Insets(0, 0, 5, 0);
-		gbc_scrContent.gridx = 1;
+		gbc_scrContent.gridx = 0;
 		gbc_scrContent.gridy = 1;
-		pnlTop.add(scrContent, gbc_scrContent);
+		pnlTop.add(scrMailContent, gbc_scrContent);
 
-		txtMail = new JTextArea();
-		scrContent.setViewportView(txtMail);
-		txtMail.setEditable(false);
-		txtMail.setWrapStyleWord(true);
+		txtMail = new HTMLPanel();
+		scrMailContent.setViewportView(txtMail);
 
 		JPanel pnlStatus = new JPanel();
 		pnlStatus.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
@@ -223,10 +223,20 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			lblStatus.setText("Parsing selected e-mail to generate booking information");
 			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 			String subject = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 1);
-			String msg = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 4);
+
+			Message msg = (Message) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 4);
+			txtMail.setContent(msg);
+
 			String parser = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 3);
-			ParserController.fillContent(subject, msg, parser);
-			txtMail.setText(msg);
+			try {
+				ParserController.fillContent(subject, msg.getContent().toString(), parser);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (MessagingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			lblStatus.setText("Ready");
 		}

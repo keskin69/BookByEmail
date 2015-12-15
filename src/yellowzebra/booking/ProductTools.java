@@ -1,12 +1,15 @@
 package yellowzebra.booking;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 
 import io.swagger.client.ApiException;
 import io.swagger.client.api.SettingsApi;
 import io.swagger.client.model.Product;
 import io.swagger.client.model.Product.TypeEnum;
 import io.swagger.client.model.ProductList;
+import yellowzebra.util.MailConfig;
 
 public class ProductTools extends ArrayList<Product> {
 	/**
@@ -85,8 +88,16 @@ public class ProductTools extends ArrayList<Product> {
 		TypeEnum prodType = ProductTools.getInstance().getProductType("Dinner Cruise with Live Music");
 
 		if (prodType == TypeEnum.FIXED) {
-			String eventId = new EventTools().getEventId(productId, "2015-12-12", "19:00");
-			System.out.println(productId + ":" + eventId);
+			Date date;
+			try {
+				date = MailConfig.SHORTDATE.parse("2015-12-12");
+				String eventId = new EventTools().getEventId(productId, date, "19:00");
+				System.out.println(productId + ":" + eventId);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 		} else {
 			System.out.println(productId);
 		}

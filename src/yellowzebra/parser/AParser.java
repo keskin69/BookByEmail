@@ -1,61 +1,51 @@
 package yellowzebra.parser;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.ParseException;
+import java.util.Date;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
 
 import io.swagger.client.ApiException;
-import io.swagger.client.model.Customer;
-import io.swagger.client.model.PhoneNumber;
-import io.swagger.client.model.PhoneNumber.TypeEnum;
+import io.swagger.client.model.Product;
 import yellowzebra.booking.CreateBooking;
+import yellowzebra.booking.EventTools;
+import yellowzebra.booking.ProductTools;
 import yellowzebra.util.Logger;
+import yellowzebra.util.MailConfig;
 import yellowzebra.util.MyBooking;
 
 public abstract class AParser implements IParser {
-	public String subjectReg = null;
-	public String fromReg = null;
+	protected String subjectReg = null;
+	protected String fromReg = null;
+	protected String agent = null;
+	protected MyBooking booking = null;
 
-	public List<PhoneNumber> setPhone(String phone) {
-		ArrayList<PhoneNumber> list = new ArrayList<PhoneNumber>();
-		PhoneNumber phoneNumber = new PhoneNumber();
-		phoneNumber.setNumber(phone.trim());
-		phoneNumber.setType(TypeEnum.MOBILE);
-		list.add(phoneNumber);
+	public abstract String trimBody(String msg);
 
-		return list;
-	}
-
-	public String trimBody(String msg) {
-		return msg;
-	}
-
-	public void dump(MyBooking booking) {
-		System.out.println("Product:");
-		System.out.println(booking.getProductId() + "\t" + booking.getEventId());
-		System.out.println(booking.getStartTime().toString());
-		Customer customer = booking.getCustomer();
-		System.out.println("Customer:\n" + customer.getFirstName() + " " + customer.getLastName());
-		System.out.println(customer.getEmailAddress() + "\t" + customer.getPhoneNumbers().get(0).getNumber());
+	protected void core() {
+		booking = new MyBooking();
+		booking.setInitialPayments(null);
+		booking.setCouponCodes(null);
+		booking.setOptions(null);
+		booking.setResources(null);
+		booking.setBookingNumber(null);
+		booking.agent = agent;
 	}
 
 	public boolean isApplicable(String subject, String from) {
-		if ((subject != null) && (from != null)) {
-			if (subject.matches(subjectReg) && from.matches(fromReg)) {
-				return true;
-			}
+		if (subject.startsWith(subjectReg) && from.equals(fromReg)) {
+			return true;
 		}
 
 		return false;
 	}
 
-	public final boolean postBooking(Message msg) {
+	protected boolean postBooking(Message msg) {
 		MyBooking booking = null;
 		try {
-			booking = parse(msg.getContent().toString());
+			booking = parse(null, msg.getContent().toString());
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -80,20 +70,26 @@ public abstract class AParser implements IParser {
 		return false;
 	}
 
-	public static String getCustomerType(String in) {
-		in = in.toUpperCase().trim();
+	protected void setProduct(String product, Date date, String time) {
+		booking.setProductName(product);
+		String productId = ProductTools.getInstance().getProductId(product);
 
-		if (in.startsWith("ADULTS")) {
-			return "Cadults";
-		} else if (in.startsWith("CHILDREN")) {
-			return "Cchildren";
-		} else if (in.startsWith("INFANTS")) {
-			return "Cinfants";
+		if (productId != null) {
+			booking.setProductId(productId);
+
+			Product.TypeEnum prodType = ProductTools.getInstance().getProductType(product);
+			if (prodType == Product.TypeEnum.FIXED) {
+				String eventId = new EventTools().getEventId(productId, date, time);
+				booking.setEventId(eventId);
+			}
+
+			try {
+				Date startDate = MailConfig.DEFAULT_DATE.parse(MailConfig.SHORTDATE.format(date) + " " + time);
+				booking.setStartTime(startDate);
+			} catch (ParseException e) {
+				Logger.err("Start date/time is not correct " + date + " " + time);
+			}
 		}
-
-		Logger.err("Unknown customer type" + in);
-
-		return null;
 	}
 
 	public static String[] split(String str, String delim) {
@@ -106,6 +102,12 @@ public abstract class AParser implements IParser {
 		return token;
 	}
 
+	public static String getLine(String msg) {
+		String line = msg.substring(0, msg.indexOf("\n") - 1);
+
+		return line;
+	}
+
 	public static String skipUntil(String msg, String key) {
 		int iS = msg.indexOf(key);
 		int iE = msg.indexOf("\n", iS + 1);
@@ -116,7 +118,7 @@ public abstract class AParser implements IParser {
 	public static String strip(String msg, String key) {
 		int iS = msg.indexOf(key);
 
-		return msg.substring(iS+key.length());
+		return msg.substring(iS + key.length());
 	}
 
 	public static String findLine(String msg, String key) {

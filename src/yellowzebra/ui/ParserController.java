@@ -1,18 +1,17 @@
 package yellowzebra.ui;
 
+import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 import javax.swing.JLabel;
-
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
-
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
 import io.swagger.client.ApiException;
@@ -22,12 +21,11 @@ import yellowzebra.booking.CreateBooking;
 import yellowzebra.parser.AParser;
 import yellowzebra.util.MailConfig;
 import yellowzebra.util.MyBooking;
-import yellowzebra.util.ParserUtils;
 
 public class ParserController implements Runnable {
 	private static DefaultTableModel model = null;
 	private static SpringPanel panel = null;
-	private static boolean isPaused = false;
+	private static boolean isPaused = true;
 	private static MyBooking booking = null;
 
 	public ParserController(DefaultTableModel model, SpringPanel panel) {
@@ -45,15 +43,10 @@ public class ParserController implements Runnable {
 				String parser = e.getKey();
 				Message msg = (Message) e.getValue();
 
-				String from = null;
-				for (Address a : msg.getFrom()) {
-					from = ((InternetAddress) a).getAddress();
-					break;
-				}
+				String token[] = parser.split("\\.");
+				String from = token[token.length-1];
 				String subject = msg.getSubject();
-				// TODO
-				// String content = msg.getContent().toString();
-				String content = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\expedia.txt");
+				String content = msg.getContent().toString();
 				String date = MailConfig.DEFAULT_DATE.format(msg.getReceivedDate()).toString();
 
 				model.addRow(new Object[] { from, subject, date, parser, content });
@@ -72,7 +65,7 @@ public class ParserController implements Runnable {
 		CreateBooking.postBooking(booking);
 	}
 
-	public static synchronized void fillContent(String msg, String parser) {
+	public static synchronized void fillContent(String subject, String msg, String parser) {
 		Class<?> c;
 		AParser p = null;
 		try {
@@ -91,7 +84,7 @@ public class ParserController implements Runnable {
 		}
 
 		if (p != null) {
-			booking = p.parse(msg);
+			booking = p.parse(subject, msg);
 			booking2Component(booking);
 
 		}
@@ -182,23 +175,25 @@ public class ParserController implements Runnable {
 		// details
 		str = booking.details;
 		lbl = new JLabel("Details/Notes");
-		txt = new JTextField(str);
-		panel.addRow(lbl, txt);
+		JTextArea txa = new JTextArea(str);
+		txa.setBorder(new LineBorder(new Color(180, 135, 144), 1, true));
+		panel.addRow(lbl, txa);
 
-		panel.revalidate();
-		panel.getTopLevelAncestor().validate();
+		panel.setLayout();
 	}
 
 	public void run() {
 		// refresh the mail list in every minute once
-		try {
-			if (!isPaused) {
-				// refreshMailList();
+		while (true) {
+			try {
+				if (!isPaused) {
+					refreshMailList();
+				}
+				Thread.sleep(1 * 60 * 1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
-			Thread.sleep(5 * 60 * 1000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

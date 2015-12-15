@@ -7,5 +7,5 @@ public interface IParser {
 
 	String DELIM = ",";
 
-	MyBooking parse(String msg);
+	MyBooking parse(String subject, String msg);
 }

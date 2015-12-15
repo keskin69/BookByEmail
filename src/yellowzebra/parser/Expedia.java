@@ -1,47 +1,48 @@
 package yellowzebra.parser;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
 import io.swagger.client.ApiException;
-import io.swagger.client.model.Booking;
 import io.swagger.client.model.Customer;
 import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
-import io.swagger.client.model.Product.TypeEnum;
 import yellowzebra.booking.CreateBooking;
-import yellowzebra.booking.EventTools;
-import yellowzebra.booking.ProductTools;
 import yellowzebra.util.Logger;
-import yellowzebra.util.MailConfig;
 import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
 
-public class ExpediaParser extends AParser {
-	public final String subjectReg = "Expedia - Booking report";
-	public final String fromReg = "Notifications@expediacustomer.com";
+public class Expedia extends AParser {
+	private  static final DateFormat EXPEDIA_DATE = new SimpleDateFormat("yyyy/MM/dd");
+	
+	public Expedia() {
+		subjectReg = "Expedia - Booking report";
+		fromReg = "Notifications@expediacustomer.com";
+		agent = "Expedia";
 
-	public boolean isApplicable(String subject, String from) {
-		if (subject.equals(subjectReg) && from.equals(fromReg)) {
-			return true;
-		}
-
-		return false;
+		core();
 	}
 
 	public String trimBody(String msg) {
-		// Main parsing
+		// Main message body
 		msg = skipUntil(msg, "BOOKING REPORT");
 		msg = skipUntil(msg, "Booking");
 
 		return msg;
 	}
 
-	public MyBooking parse(String msg) {
-		MyBooking booking = new MyBooking();
-		booking.agent = "Expedia";
+	public MyBooking parse(String subject, String msg) {
+		try {
+			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\expedia.txt");
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
 		String line = null;
 		String token[] = null;
 		String field = null;
@@ -53,7 +54,7 @@ public class ExpediaParser extends AParser {
 
 		line = findLine(msg, "Primary Redeemer:");
 		token = split(line, ",");
-		cus.setPhoneNumbers(setPhone(token[1]));
+		cus.setPhoneNumbers(ParserUtils.setPhone(token[1]));
 		cus.setEmailAddress(token[2]);
 		cus.setCustomFields(null);
 
@@ -67,9 +68,9 @@ public class ExpediaParser extends AParser {
 		line = findLine(msg, "Valid Days:");
 		token = split(line, "-");
 		field = token[0];
-		String date = null;
+		Date date = null;
 		try {
-			date = MailConfig.SHORTDATE.format(MailConfig.MAIL_DATE.parse(field));
+			date = EXPEDIA_DATE.parse(field);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -90,31 +91,7 @@ public class ExpediaParser extends AParser {
 		}
 
 		time += ":00";
-		String productId = ProductTools.getInstance().getProductId(product);
-
-		if (productId != null) {
-			booking.setProductId(productId);
-
-			TypeEnum prodType = ProductTools.getInstance().getProductType(product);
-			if (prodType == TypeEnum.FIXED) {
-				String eventId = new EventTools().getEventId(productId, date, time);
-				booking.setEventId(eventId);
-			} else {
-				try {
-					Date startDate = MailConfig.DEFAULT_DATE.parse(date + " " + time);
-					booking.setStartTime(startDate);
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-
-			}
-		}
-
-		booking.setInitialPayments(null);
-		booking.setCouponCodes(null);
-		booking.setOptions(null);
-		booking.setResources(null);
+		setProduct(product, date, time);
 
 		// set participants
 		line = findLine(msg, "Travellers:");
@@ -128,19 +105,18 @@ public class ExpediaParser extends AParser {
 		for (String str : token) {
 			String t[] = split(str, " ");
 			number.setNumber(new Integer(t[1]));
-			number.setPeopleCategoryId(getCustomerType(t[0]));
+			number.setPeopleCategoryId(ParserUtils.getCustomerType(t[0]));
 			peopleList.add(number);
 		}
 		participants.setNumbers(peopleList);
 		participants.setDetails(null);
 		booking.setParticipants(participants);
-		booking.setBookingNumber(null);
 
 		line = findLine(msg, "Voucher #:");
-		token=split(line, "Itin");
+		token = split(line, "Itin");
 		booking.voucherNumber = token[0];
-		booking.setTitle(booking.agent + "-" +  booking.voucherNumber);
-		
+		booking.setTitle(booking.agent + "-" + booking.voucherNumber);
+
 		return booking;
 	}
 
@@ -153,8 +129,8 @@ public class ExpediaParser extends AParser {
 			e1.printStackTrace();
 		}
 
-		ExpediaParser parser = new ExpediaParser();
-		Booking booking = parser.parse(msg);
+		Expedia parser = new Expedia();
+		MyBooking booking = parser.parse(null, msg);
 		// parser.dump(booking);
 		try {
 			CreateBooking.postBooking(booking);

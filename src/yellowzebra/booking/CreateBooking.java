@@ -28,7 +28,7 @@ public class CreateBooking {
 		return customer;
 	}
 
-	private static Booking createBooking(Customer customer, String product, String date, String time) {
+	private static Booking createBooking(Customer customer, String product, Date date, String time) {
 		Booking booking = new Booking();
 
 		String productId = ProductTools.getInstance().getProductId(product);
@@ -97,7 +97,8 @@ public class CreateBooking {
 
 			// booking = CreateBooking.createBooking(testCustomer, "Tour",
 			// "2015-12-12", "09:00");
-			booking = CreateBooking.createBooking(testCustomer, "Dinner Cruise with Live Music", "2015-12-22", "19:00");
+			Date date = MailConfig.SHORTDATE.parse("2015-12-22");
+			booking = CreateBooking.createBooking(testCustomer, "Dinner Cruise with Live Music", date, "19:00");
 			CreateBooking.postBooking(booking);
 
 		} catch (ApiException e) {
@@ -108,6 +109,9 @@ public class CreateBooking {
 			} else {
 				Logger.err(e.getMessage());
 			}
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		System.out.println("Posting done...");

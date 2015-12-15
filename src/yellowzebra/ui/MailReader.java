@@ -1,12 +1,9 @@
 package yellowzebra.ui;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Properties;
 
 import javax.mail.Address;
 import javax.mail.Folder;
@@ -19,12 +16,13 @@ import javax.mail.internet.InternetAddress;
 
 import yellowzebra.parser.AParser;
 import yellowzebra.util.ClassFinder;
+import yellowzebra.util.ConfigReader;
 import yellowzebra.util.Logger;
 
 public class MailReader {
 	private static MailReader instance = null;
 	private static Store store = null;
-	private static Properties props = null;
+	private static ConfigReader props = null;
 	private static final List<Class<?>> classes = ClassFinder.find("yellowzebra.parser");
 
 	public static MailReader getInstance() {
@@ -36,22 +34,13 @@ public class MailReader {
 	}
 
 	private MailReader() {
-		props = new Properties();
-
-		try {
-			ClassLoader loader = Thread.currentThread().getContextClassLoader();
-			InputStream stream = loader.getResourceAsStream("smtp.properties");
-			props.load(stream);
-		} catch (IOException e) {
-			Logger.err("Cannot read smtp.properties file");
-		}
+		props = ConfigReader.getInstance();
 
 		Session session = Session.getDefaultInstance(props, null);
 
 		try {
 			store = session.getStore("imaps");
 		} catch (NoSuchProviderException e) {
-			// TODO Auto-generated catch block
 			Logger.err("Cannot create IMAP store");
 		}
 
@@ -111,7 +100,6 @@ public class MailReader {
 					try {
 						AParser parser = (AParser) c.newInstance();
 						if (parser.isApplicable(subject, from)) {
-							// TODO Fill e-mail table
 							Logger.log("Parsing message with " + c.getName());
 							return c.getCanonicalName();
 						}

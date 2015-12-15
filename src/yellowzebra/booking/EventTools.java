@@ -1,13 +1,10 @@
 package yellowzebra.booking;
 
-import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
 
 import io.swagger.client.ApiException;
 import io.swagger.client.api.AvailabilityApi;
-import io.swagger.client.model.MatchingSlotsSearchParameters;
-import io.swagger.client.model.Product.TypeEnum;
 import io.swagger.client.model.Slot;
 import io.swagger.client.model.SlotList;
 import yellowzebra.util.MailConfig;
@@ -17,16 +14,7 @@ public class EventTools {
 
 	}
 
-	public String getEventId(String productId, String day, String hour) {
-		Date startTime = null;
-
-		try {
-			startTime = MailConfig.SHORTDATE.parse(day);
-		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
+	public String getEventId(String productId, Date startTime, String hour) {
 		AvailabilityApi api = new AvailabilityApi();
 
 		String pageNavigationToken = null;

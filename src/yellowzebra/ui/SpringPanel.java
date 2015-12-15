@@ -1,12 +1,13 @@
 package yellowzebra.ui;
 
 import java.awt.Color;
+import java.awt.Dimension;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
-import javax.swing.border.LineBorder;
 
 public class SpringPanel extends JPanel {
 	/**
@@ -18,10 +19,8 @@ public class SpringPanel extends JPanel {
 	private int row = 0;
 
 	public SpringPanel() {
-		setBorder(new LineBorder(new Color(130, 135, 144), 1, true));
 		layout = new SpringLayout();
 		setLayout(layout);
-
 	}
 
 	public void reset() {
@@ -30,6 +29,12 @@ public class SpringPanel extends JPanel {
 
 		revalidate();
 		getTopLevelAncestor().validate();
+	}
+
+	public void setLayout() {
+		revalidate();
+		getTopLevelAncestor().validate();
+		setPreferredSize(new Dimension(0, row + HEIGHT));
 	}
 
 	public void addRow(JComponent comp1, JComponent comp2) {
@@ -42,6 +47,7 @@ public class SpringPanel extends JPanel {
 			((JLabel) comp1).setText(((JLabel) comp1).getText() + ":");
 			comp1.setForeground(Color.DARK_GRAY);
 		}
+
 		if (comp2 instanceof JTextField) {
 			// ((JTextField) comp2).setPreferredSize(new Dimension((int)
 			// (comp2.getWidth() * 1.2), comp2.getHeight()));
@@ -52,6 +58,8 @@ public class SpringPanel extends JPanel {
 		add(comp1);
 
 		if (comp2 != null) {
+			Dimension d = comp2.getPreferredSize();
+			comp2.setPreferredSize(new Dimension((int) (d.getWidth() * 1.2), (int) d.getHeight()));
 			layout.putConstraint(SpringLayout.NORTH, comp2, 5 + row, SpringLayout.NORTH, this);
 			layout.putConstraint(SpringLayout.WEST, comp2, 5, SpringLayout.EAST, comp1);
 			add(comp2);

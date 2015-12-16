@@ -29,6 +29,7 @@ public class SpringPanel extends JPanel {
 
 		revalidate();
 		getTopLevelAncestor().validate();
+		repaint();
 	}
 
 	public void setLayout() {

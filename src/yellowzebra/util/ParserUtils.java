@@ -3,12 +3,24 @@ package yellowzebra.util;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.swagger.client.model.PhoneNumber;
 
 public class ParserUtils {
+	public static String html2Text(String html) {
+		MyHtml2Text parser = new MyHtml2Text();
+		try {
+		    parser.parse(new StringReader(html));
+		} catch (IOException ee) {
+		  //handle exception
+		}
+		
+		return parser.getText();
+	}
+	
 	public static String readFile(String file) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(file));
 		String line = null;

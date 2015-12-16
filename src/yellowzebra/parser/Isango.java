@@ -33,13 +33,7 @@ public class Isango extends AParser {
 	}
 
 	public MyBooking parse(String subject, String msg) {
-		try {
-			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\isango.txt");
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
+		System.out.println(msg);
 		String line = null;
 		String token[] = null;
 
@@ -60,8 +54,8 @@ public class Isango extends AParser {
 		msg = skipUntil(msg, "Start Time");
 		line = getLine(msg);
 		token = split(line, " ");
-		String time = token[0].substring(0,2) + ":" + token[0].substring(2,4);
-	
+		String time = token[0].substring(0, 2) + ":" + token[0].substring(2, 4);
+
 		setProduct(product, date, time);
 
 		// Customer
@@ -96,11 +90,14 @@ public class Isango extends AParser {
 
 		msg = skipUntil(msg, "No of Child Passengers");
 		line = getLine(msg);
-		if (!line.trim().equals("")) {
+		try {
 			number.setNumber(new Integer(line));
 			number.setPeopleCategoryId("Cchildren");
 			peopleList.add(number);
+		} catch (NumberFormatException e) {
+			//continue
 		}
+		
 		participants.setNumbers(peopleList);
 		participants.setDetails(null);
 		booking.setParticipants(participants);
@@ -120,7 +117,8 @@ public class Isango extends AParser {
 	public static void main(String[] args) {
 		String msg = null;
 		try {
-			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\isango.txt");
+			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\isango.html");
+			msg = ParserUtils.html2Text(msg);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -129,10 +127,5 @@ public class Isango extends AParser {
 		Isango parser = new Isango();
 		MyBooking booking = parser.parse("Booking Confirmation - ISA357761", msg);
 		booking.dump();
-
-		/*
-		 * try { CreateBooking.postBooking(booking); } catch (ApiException e) {
-		 * Logger.err(e.getMessage()); }
-		 */
 	}
 }

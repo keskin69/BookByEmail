@@ -64,7 +64,6 @@ public class HTMLPanel extends JTextPane {
 
 				setText(bodyPart.getContent().toString());
 			}
-
 		}
 	}
 }

@@ -15,11 +15,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 
+import javax.imageio.ImageIO;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -36,6 +38,7 @@ import com.alee.laf.WebLookAndFeel;
 import io.swagger.client.ApiException;
 import yellowzebra.util.ConfigReader;
 import yellowzebra.util.Logger;
+import yellowzebra.util.ParserUtils;
 
 public class ParserUI extends JFrame implements WindowStateListener {
 
@@ -74,7 +77,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					ParserUI frame = new ParserUI();
+					final ParserUI frame = new ParserUI();
 
 					tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
 					tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
@@ -84,8 +87,20 @@ public class ParserUI extends JFrame implements WindowStateListener {
 
 					model.addTableModelListener(new TableModelListener() {
 						public void tableChanged(TableModelEvent e) {
-							if (model.getRowCount() >= 0) {
-								// TODO Change icon
+
+							try {
+								InputStream imgStream = null;
+								if (model.getRowCount() >= 0) {
+									imgStream = this.getClass().getResourceAsStream("/resources/red_email.png");
+								} else {
+									imgStream = this.getClass().getResourceAsStream("/resources/blue_email.png");
+								}
+
+								BufferedImage myImg = ImageIO.read(imgStream);
+								frame.setIconImage(myImg);
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
 							}
 						}
 					});
@@ -94,12 +109,19 @@ public class ParserUI extends JFrame implements WindowStateListener {
 					ParserController controller = new ParserController(model, pnlContent);
 					Thread t = new Thread(controller);
 					t.start();
+
+					// load icon
+					InputStream imgStream = this.getClass().getResourceAsStream("/resources/blue_email.png");
+					BufferedImage myImg = ImageIO.read(imgStream);
+					frame.setIconImage(myImg);
+
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
+
 	}
 
 	/**
@@ -113,9 +135,6 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 0));
-
-		ImageIcon img = new ImageIcon("yellow-zebra.jpg");
-		setIconImage(img.getImage());
 
 		JPanel pnlTop = new JPanel();
 		contentPane.add(pnlTop, BorderLayout.CENTER);
@@ -228,15 +247,14 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			txtMail.setContent(msg);
 
 			String parser = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 3);
-			try {
-				ParserController.fillContent(subject, msg.getContent().toString(), parser);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (MessagingException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+
+			if (txtMail.getContentType().equals("text/plain")) {
+				ParserController.fillContent(subject, txtMail.getText(), parser);
+			} else {
+				String con = ParserUtils.html2Text(txtMail.getText());
+				ParserController.fillContent(subject, con, parser);
 			}
+
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 			lblStatus.setText("Ready");
 		}

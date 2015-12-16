@@ -1,11 +1,7 @@
 package yellowzebra.parser;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
-
-import javax.mail.Message;
-import javax.mail.MessagingException;
 
 import io.swagger.client.ApiException;
 import io.swagger.client.model.Product;
@@ -42,17 +38,8 @@ public abstract class AParser implements IParser {
 		return false;
 	}
 
-	protected boolean postBooking(Message msg) {
-		MyBooking booking = null;
-		try {
-			booking = parse(null, msg.getContent().toString());
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (MessagingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+	protected boolean postBooking(String msg) {
+		MyBooking booking = parse(null, msg);
 
 		if (booking != null) {
 			try {
@@ -103,7 +90,7 @@ public abstract class AParser implements IParser {
 	}
 
 	public static String getLine(String msg) {
-		String line = msg.substring(0, msg.indexOf("\n") - 1);
+		String line = msg.substring(0, msg.indexOf("\n"));
 
 		return line;
 	}

@@ -81,7 +81,6 @@ public class ParserController implements Runnable {
 		if (p != null) {
 			booking = p.parse(subject, msg);
 			booking2Component(booking);
-
 		}
 	}
 

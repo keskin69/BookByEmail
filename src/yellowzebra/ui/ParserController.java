@@ -167,8 +167,9 @@ public class ParserController implements Runnable {
 		panel.addRow(lbl, txt);
 
 		// details
-		str = booking.details;
-		if (str != null && str.length() > 0) {
+		str = booking.details.trim();
+
+		if (str != null && str.length() > 3) {
 			lbl = new JLabel("Details/Notes");
 			JTextArea txa = new JTextArea(str);
 			txa.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));

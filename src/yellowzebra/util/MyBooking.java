@@ -15,6 +15,7 @@ public class MyBooking extends Booking {
 		if (getEventId() != null) {
 			System.out.println("Event Id: " + getEventId());
 		}
+
 		System.out.println("Start Time: " + getStartTime().toString());
 
 		Customer customer = getCustomer();
@@ -22,5 +23,6 @@ public class MyBooking extends Booking {
 		System.out.println(customer.getEmailAddress() + "\t" + customer.getPhoneNumbers().get(0).getNumber());
 
 		System.out.println("Details:\n" + details);
+
 	}
 }

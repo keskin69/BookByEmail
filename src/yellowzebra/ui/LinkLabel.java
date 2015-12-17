@@ -1,5 +1,6 @@
 package yellowzebra.ui;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.event.MouseAdapter;
@@ -38,8 +39,14 @@ public class LinkLabel extends JLabel {
 			}
 		});
 	}
+	
+	public void setError(String txt) {
+		super.setText(" " + txt);
+		setForeground(Color.RED);
+	}
 
 	public void setText(String txt) {
+		setForeground(Color.BLACK);
 		super.setText(" " + txt);
 		url = null;
 		paintImmediately(getVisibleRect());

@@ -7,7 +7,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.swagger.client.ApiException;
 import io.swagger.client.model.PhoneNumber;
+import yellowzebra.booking.CreateBooking;
 
 public class ParserUtils {
 	public static String html2Text(String html) {
@@ -20,6 +22,7 @@ public class ParserUtils {
 		
 		return parser.getText();
 	}
+
 	
 	public static String readFile(String file) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(file));

@@ -1,10 +1,8 @@
 package yellowzebra.util;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.Properties;
 
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
@@ -49,16 +47,12 @@ public class ConfigReader extends Properties {
 
 	private ConfigReader() {
 		try {
-			File jarFile = new File(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-			InputStream in = new FileInputStream(jarFile.getAbsolutePath() + "\\..\\..\\" + file);
+			InputStream in = new FileInputStream(file);
 			load(in);
 		} catch (IOException e) {
 			Logger.err("Cannot read properties file " + file);
 		} catch (NullPointerException ex) {
 			Logger.err("Cannot read properties file " + file);
-		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 

@@ -33,7 +33,6 @@ public class Isango extends AParser {
 	}
 
 	public MyBooking parse(String subject, String msg) {
-		System.out.println(msg);
 		String line = null;
 		String token[] = null;
 
@@ -107,7 +106,7 @@ public class Isango extends AParser {
 		booking.details = msg.substring(0, idx).trim();
 
 		// Voucher
-		token = subject.split(" ");
+		token = split(subject, " ");
 		booking.voucherNumber = token[token.length - 1];
 		booking.setTitle(booking.agent + "-" + booking.voucherNumber);
 

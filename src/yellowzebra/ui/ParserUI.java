@@ -9,6 +9,9 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -16,12 +19,10 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -66,12 +67,46 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		}
 	};
 
+	public void postUI() {
+		Logger.label = lblStatus;
+
+		tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
+		tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
+		tblMail.getColumnModel().getColumn(0).setPreferredWidth(100);
+		tblMail.getColumnModel().getColumn(1).setPreferredWidth(240);
+		tblMail.getColumnModel().getColumn(2).setPreferredWidth(110);
+
+		model.addTableModelListener(new TableModelListener() {
+			public void tableChanged(TableModelEvent e) {
+
+				BufferedImage myImg = null;
+				if (model.getRowCount() >= 0) {
+					myImg = getImage("red_email.png");
+				} else {
+					myImg = getImage("blue_email.png");
+				}
+
+				setIconImage(myImg);
+			}
+		});
+
+		// load icon
+		BufferedImage myImg = getImage("blue_email.png");
+		setIconImage(myImg);
+
+		setVisible(true);
+
+		// init controller thread
+		ParserController controller = new ParserController(model, pnlContent);
+		Thread t = new Thread(controller);
+		t.start();
+	}
+
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
 		WebLookAndFeel.install();
-
 		ConfigReader.init("config.properties");
 
 		EventQueue.invokeLater(new Runnable() {
@@ -79,49 +114,25 @@ public class ParserUI extends JFrame implements WindowStateListener {
 				try {
 					final ParserUI frame = new ParserUI();
 
-					tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
-					tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
-					tblMail.getColumnModel().getColumn(0).setPreferredWidth(100);
-					tblMail.getColumnModel().getColumn(1).setPreferredWidth(240);
-					tblMail.getColumnModel().getColumn(2).setPreferredWidth(110);
-
-					model.addTableModelListener(new TableModelListener() {
-						public void tableChanged(TableModelEvent e) {
-
-							try {
-								InputStream imgStream = null;
-								if (model.getRowCount() >= 0) {
-									imgStream = this.getClass().getResourceAsStream("/resources/red_email.png");
-								} else {
-									imgStream = this.getClass().getResourceAsStream("/resources/blue_email.png");
-								}
-
-								BufferedImage myImg = ImageIO.read(imgStream);
-								frame.setIconImage(myImg);
-							} catch (IOException e1) {
-								// TODO Auto-generated catch block
-								e1.printStackTrace();
-							}
-						}
-					});
-
-					// init controller thread
-					ParserController controller = new ParserController(model, pnlContent);
-					Thread t = new Thread(controller);
-					t.start();
-
-					// load icon
-					InputStream imgStream = this.getClass().getResourceAsStream("/resources/blue_email.png");
-					BufferedImage myImg = ImageIO.read(imgStream);
-					frame.setIconImage(myImg);
-
-					frame.setVisible(true);
+					frame.postUI();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
 
+	}
+
+	private BufferedImage getImage(String res) {
+		BufferedImage myImg = null;
+		InputStream imgStream = getClass().getResourceAsStream("/resources/" + res);
+		try {
+			myImg = ImageIO.read(imgStream);
+		} catch (Exception e) {
+			Logger.err("Cannot read image file " + res);
+		}
+
+		return myImg;
 	}
 
 	/**
@@ -274,6 +285,10 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			} else {
 				String tokens[] = e.getMessage().split("/");
 				String bookingId = tokens[tokens.length - 1];
+
+				StringSelection stringSelection = new StringSelection(bookingId);
+				Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
+				clpbrd.setContents(stringSelection, null);
 				lblStatus.setText("<HTML>Booking created <a href=>" + bookingId + "</a></HTML>", e.getMessage());
 			}
 		}

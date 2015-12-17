@@ -3,9 +3,7 @@ package yellowzebra.parser;
 import java.text.ParseException;
 import java.util.Date;
 
-import io.swagger.client.ApiException;
 import io.swagger.client.model.Product;
-import yellowzebra.booking.CreateBooking;
 import yellowzebra.booking.EventTools;
 import yellowzebra.booking.ProductTools;
 import yellowzebra.util.Logger;
@@ -38,28 +36,13 @@ public abstract class AParser implements IParser {
 		return false;
 	}
 
-	protected boolean postBooking(String msg) {
-		MyBooking booking = parse(null, msg);
-
-		if (booking != null) {
-			try {
-				Logger.log("Posting new booking");
-				CreateBooking.postBooking(booking);
-
-				return true;
-			} catch (ApiException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				return false;
-			}
-		}
-
-		return false;
-	}
-
 	protected void setProduct(String product, Date date, String time) {
 		booking.setProductName(product);
 		String productId = ProductTools.getInstance().getProductId(product);
+
+		if (productId == null) {
+			Logger.err("\"" + product + "\" cannot be found in available tour names");
+		}
 
 		if (productId != null) {
 			booking.setProductId(productId);
@@ -67,6 +50,10 @@ public abstract class AParser implements IParser {
 			Product.TypeEnum prodType = ProductTools.getInstance().getProductType(product);
 			if (prodType == Product.TypeEnum.FIXED) {
 				String eventId = new EventTools().getEventId(productId, date, time);
+				if (eventId == null) {
+					Logger.err("\"" + product + "\" is not avaiable at " + date + " " + time);
+				}
+
 				booking.setEventId(eventId);
 			}
 
@@ -74,7 +61,7 @@ public abstract class AParser implements IParser {
 				Date startDate = MailConfig.DEFAULT_DATE.parse(MailConfig.SHORTDATE.format(date) + " " + time);
 				booking.setStartTime(startDate);
 			} catch (ParseException e) {
-				Logger.err("Start date/time is not correct " + date + " " + time);
+				Logger.err("\"" + product + "\" is not avaiable at " + date + " " + time);
 			}
 		}
 	}
@@ -97,7 +84,7 @@ public abstract class AParser implements IParser {
 
 	public static String skipUntil(String msg, String key) {
 		int iS = msg.indexOf(key);
-		int iE = msg.indexOf("\n", iS + 1);
+		int iE = msg.indexOf("\n", iS + key.length());
 
 		return msg.substring(iE + 1);
 	}

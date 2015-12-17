@@ -10,6 +10,7 @@ import java.util.Date;
 import io.swagger.client.model.Customer;
 import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
+import io.swagger.client.model.StreetAddress;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
@@ -27,24 +28,22 @@ public class Getty extends AParser {
 		core();
 	}
 
-	public MyBooking parse(String subject, String msg) {
-		// try {
-		// msg =
-		// ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\getty.html");
-		// } catch (IOException e1) {
-		// // TODO Auto-generated catch block
-		// e1.printStackTrace();
-		// }
+	public void trimBody(String msg) {
+		content = msg;
+		skipAfter("Option:");
+	}
 
+	public MyBooking parse(String subject, String msg) {
 		String line = null;
 		String token[] = null;
 
-		msg = trimBody(msg);
-		line = getLine(msg);
+		trimBody(msg);
+
+		line = getNextLine();
 		String product = split(line, "\\(")[0];
 
-		msg = skipUntil(msg, "Date:");
-		line = getLine(msg);
+		skipAfter("Date:");
+		line = getNextLine();
 		token = split(line, ",");
 
 		Date date = null;
@@ -63,36 +62,56 @@ public class Getty extends AParser {
 		Participants participants = new Participants();
 		ArrayList<PeopleNumber> peopleList = new ArrayList<PeopleNumber>();
 		PeopleNumber number = new PeopleNumber();
-		msg = skipUntil(msg, "Number of participants:");
-		line = getLine(msg);
+		skipAfter("Number of participants:");
+		line = getNextLine();
 		token = split(line, " ");
 		number.setNumber(new Integer(token[0]));
 		number.setPeopleCategoryId("Cadults");
 		peopleList.add(number);
-		
-		msg = skipUntil(msg, line);
-		line = getLine(msg);
+
+		line = getNextLine();
 		if (!line.startsWith("Reference")) {
 			token = split(line, " ");
 			number.setNumber(new Integer(token[0]));
 			number.setPeopleCategoryId("Cchildren");
 			peopleList.add(number);
 		}
-		
+
 		participants.setNumbers(peopleList);
 		participants.setDetails(null);
 		booking.setParticipants(participants);
-		
+
 		// voucher
-		msg = skipUntil(msg, "Reference");
-		booking.voucherNumber = getLine(msg);
-		
+		line = getLine();
+		booking.voucherNumber = line;
+
 		// Customer
 		Customer customer = new Customer();
+
+		skipAfter("Main customer:");
+		line = getLine();
+		token = line.split(" ", 2);
 		customer.setFirstName(token[0].trim());
 		customer.setLastName(token[1].trim());
+
+		String str = "";
+		while (true) {
+			line = getLine();
+			if (line.contains("@")) {
+				break;
+			}
+
+			str += line;
+		}
+		StreetAddress address = new StreetAddress();
+		address.setAddress1(str);
+		customer.setStreetAddress(address);
+		
 		customer.setEmailAddress(line);
+
+		line = getNextLine();
 		customer.setPhoneNumbers(ParserUtils.setPhone(line));
+
 		customer.setCustomFields(null);
 		booking.setCustomer(customer);
 
@@ -100,13 +119,7 @@ public class Getty extends AParser {
 		booking.setTitle(booking.agent + "-" + booking.voucherNumber);
 
 		return booking;
-	}
 
-	public String trimBody(String msg) {
-		// Main parsing
-		msg = skipUntil(msg, "Option:");
-
-		return msg;
 	}
 
 	public static void main(String[] args) {

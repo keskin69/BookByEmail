@@ -6,8 +6,10 @@ import java.awt.Dimension;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.border.LineBorder;
 
 public class SpringPanel extends JPanel {
 	/**
@@ -21,6 +23,17 @@ public class SpringPanel extends JPanel {
 	public SpringPanel() {
 		layout = new SpringLayout();
 		setLayout(layout);
+	}
+
+	public void addRow(String key, String value) {
+		JLabel lbl = new JLabel(key);
+		JTextField txt = null;
+
+		if (value != null) {
+			txt = new JTextField(value);
+		}
+
+		addRow(lbl, txt);
 	}
 
 	public void reset() {
@@ -49,9 +62,8 @@ public class SpringPanel extends JPanel {
 			comp1.setForeground(Color.DARK_GRAY);
 		}
 
-		if (comp2 instanceof JTextField) {
-			// ((JTextField) comp2).setPreferredSize(new Dimension((int)
-			// (comp2.getWidth() * 1.2), comp2.getHeight()));
+		if (comp2 instanceof JTextArea) {
+			comp2.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		}
 
 		layout.putConstraint(SpringLayout.NORTH, comp1, 10 + row, SpringLayout.NORTH, this);

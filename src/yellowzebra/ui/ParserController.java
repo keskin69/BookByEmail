@@ -1,6 +1,5 @@
 package yellowzebra.ui;
 
-import java.awt.Color;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
@@ -10,7 +9,6 @@ import javax.mail.MessagingException;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
 import io.swagger.client.ApiException;
@@ -105,33 +103,14 @@ public class ParserController implements Runnable {
 		String str = null;
 		JLabel lbl = null;
 
-		// agent
-		str = booking.agent;
-		lbl = new JLabel("Tour Agent");
-		txt = new JTextField(str);
-		panel.addRow(lbl, txt);
+		panel.addRow("Title", booking.getTitle());
+		panel.addRow("Tour Agent", booking.agent);
+		panel.addRow("Voucher Number(s)", booking.voucherNumber);
+		panel.addRow("Tour Name", booking.getProductName());
 
-		// voucher number
-		str = booking.voucherNumber;
-		lbl = new JLabel("Voucher Number(s)");
-		txt = new JTextField(str);
-		panel.addRow(lbl, txt);
-
-		// booking info
-		str = booking.getProductName();
-		lbl = new JLabel("Tour Name");
-		txt = new JTextField(str);
-		panel.addRow(lbl, txt);
-
-		// booking date
 		str = MailConfig.DEFAULT_DATE.format(booking.getStartTime());
-		lbl = new JLabel("Booking Time");
-		txt = new JTextField(str);
-		panel.addRow(lbl, txt);
-
-		// number of person
-		lbl = new JLabel("Participant Information");
-		panel.addRow(lbl, null);
+		panel.addRow("Booking Time", str);
+		panel.addRow("Participant Information", null);
 
 		for (PeopleNumber n : booking.getParticipants().getNumbers()) {
 			lbl = new JLabel(n.getPeopleCategoryId().toString().substring(1));
@@ -139,40 +118,28 @@ public class ParserController implements Runnable {
 			panel.addRow(lbl, txt);
 		}
 
-		lbl = new JLabel("Customer Information");
-		panel.addRow(lbl, null);
+		panel.addRow("Customer Information", null);
+		panel.addRow("Name", booking.getCustomer().getFirstName());
+		panel.addRow("Last Name", booking.getCustomer().getLastName());
 
-		// customer name
-		lbl = new JLabel("Name");
-		txt = new JTextField(booking.getCustomer().getFirstName());
-		panel.addRow(lbl, txt);
+		if (booking.getCustomer().getStreetAddress() != null) {
+			lbl = new JLabel("Address");
+			JTextArea txa = new JTextArea(booking.getCustomer().getStreetAddress().getAddress1());
+			panel.addRow(lbl, txa);
+		}
 
-		// customer lastname
-		lbl = new JLabel("Last Name");
-		txt = new JTextField(booking.getCustomer().getLastName());
-		panel.addRow(lbl, txt);
-
-		// customer e-mail
-		lbl = new JLabel("E-Mail");
-		txt = new JTextField(booking.getCustomer().getEmailAddress());
-		panel.addRow(lbl, txt);
-
-		// customer phone
-		lbl = new JLabel("Phone Number");
+		panel.addRow("E-Mail", booking.getCustomer().getEmailAddress());
 
 		List<PhoneNumber> list = booking.getCustomer().getPhoneNumbers();
 		if (list != null) {
-			txt = new JTextField(list.get(0).getNumber());
+			panel.addRow("Phone Number", list.get(0).getNumber());
 		}
-		panel.addRow(lbl, txt);
 
 		// details
-		str = booking.details.trim();
-
+		str = booking.details;
 		if (str != null && str.length() > 3) {
 			lbl = new JLabel("Details/Notes");
 			JTextArea txa = new JTextArea(str);
-			txa.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 			panel.addRow(lbl, txa);
 		}
 

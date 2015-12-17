@@ -15,8 +15,9 @@ public abstract class AParser implements IParser {
 	protected String fromReg = null;
 	protected String agent = null;
 	protected MyBooking booking = null;
+	protected String content;
 
-	public abstract String trimBody(String msg);
+	public abstract void trimBody(String msg);
 
 	protected void core() {
 		booking = new MyBooking();
@@ -42,9 +43,7 @@ public abstract class AParser implements IParser {
 
 		if (productId == null) {
 			Logger.err("\"" + product + "\" cannot be found in available tour names");
-		}
-
-		if (productId != null) {
+		} else {
 			booking.setProductId(productId);
 
 			Product.TypeEnum prodType = ProductTools.getInstance().getProductType(product);
@@ -76,29 +75,29 @@ public abstract class AParser implements IParser {
 		return token;
 	}
 
-	public static String getLine(String msg) {
-		String line = msg.substring(0, msg.indexOf("\n"));
+	public String getLine() {
+		int idx = content.indexOf("\n");
+		String line = content.substring(0, idx);
+		content = content.substring(idx + 1);
 
 		return line;
 	}
 
-	public static String skipUntil(String msg, String key) {
-		int iS = msg.indexOf(key);
-		int iE = msg.indexOf("\n", iS + key.length());
-
-		return msg.substring(iE + 1);
+	public String getNextLine() {
+		getLine();
+		return getLine();
 	}
 
-	public static String strip(String msg, String key) {
+	public void skipAfter(String key) {
+		int iS = content.indexOf(key);
+
+		content = content.substring(iS + key.length() + 1);
+	}
+
+	public String strip(String msg, String key) {
 		int iS = msg.indexOf(key);
 
 		return msg.substring(iS + key.length());
 	}
 
-	public static String findLine(String msg, String key) {
-		int iS = msg.indexOf(key);
-		int iE = msg.indexOf("\n", iS + 1);
-
-		return msg.substring(iS + key.length() + 1, iE).trim();
-	}
 }

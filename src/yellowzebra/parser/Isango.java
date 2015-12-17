@@ -25,22 +25,21 @@ public class Isango extends AParser {
 		core();
 	}
 
-	public String trimBody(String msg) {
-		// Main parsing
-		msg = skipUntil(msg, "Product Name");
+	public void trimBody(String msg) {
+		content = msg;
 
-		return msg;
+		skipAfter("Product Name");
 	}
 
 	public MyBooking parse(String subject, String msg) {
 		String line = null;
 		String token[] = null;
 
-		msg = trimBody(msg);
+		trimBody(msg);
 
-		String product = getLine(msg);
-		msg = skipUntil(msg, "Start date of travel");
-		line = getLine(msg);
+		String product = getLine();
+		skipAfter("Start date of travel");
+		line = getLine();
 
 		Date date = null;
 		try {
@@ -50,8 +49,8 @@ public class Isango extends AParser {
 			return null;
 		}
 
-		msg = skipUntil(msg, "Start Time");
-		line = getLine(msg);
+		skipAfter("Start Time");
+		line = getLine();
 		token = split(line, " ");
 		String time = token[0].substring(0, 2) + ":" + token[0].substring(2, 4);
 
@@ -59,18 +58,18 @@ public class Isango extends AParser {
 
 		// Customer
 		Customer customer = new Customer();
-		msg = skipUntil(msg, "Lead Passenger Name");
-		line = getLine(msg);
+		skipAfter("Lead Passenger Name");
+		line = getLine();
 		token = line.split(" ", 2);
 		customer.setFirstName(token[0].trim());
 		customer.setLastName(token[1].trim());
 
-		msg = skipUntil(msg, "Lead Passenger Email");
-		line = getLine(msg);
+		skipAfter("Lead Passenger Email");
+		line = getLine();
 		customer.setEmailAddress(line);
 
-		msg = skipUntil(msg, "Lead Passenger Phone");
-		line = getLine(msg);
+		skipAfter("Lead Passenger Phone");
+		line = getLine();
 		customer.setPhoneNumbers(ParserUtils.setPhone(line));
 		customer.setCustomFields(null);
 
@@ -81,29 +80,29 @@ public class Isango extends AParser {
 		ArrayList<PeopleNumber> peopleList = new ArrayList<PeopleNumber>();
 		PeopleNumber number = new PeopleNumber();
 
-		msg = skipUntil(msg, "No of Adult Passengers");
-		line = getLine(msg);
+		skipAfter("No of Adult Passengers");
+		line = getLine();
 		number.setNumber(new Integer(line));
 		number.setPeopleCategoryId("Cadults");
 		peopleList.add(number);
 
-		msg = skipUntil(msg, "No of Child Passengers");
-		line = getLine(msg);
+		skipAfter("No of Child Passengers");
+		line = getLine();
 		try {
 			number.setNumber(new Integer(line));
 			number.setPeopleCategoryId("Cchildren");
 			peopleList.add(number);
 		} catch (NumberFormatException e) {
-			//continue
+			// continue
 		}
-		
+
 		participants.setNumbers(peopleList);
 		participants.setDetails(null);
 		booking.setParticipants(participants);
 
-		msg = skipUntil(msg, "Special Request");
-		int idx = msg.indexOf("End customer Total price:");
-		booking.details = msg.substring(0, idx).trim();
+		skipAfter("Special Request");
+		int idx = content.indexOf("End customer Total price:");
+		booking.details = content.substring(0, idx).trim();
 
 		// Voucher
 		token = split(subject, " ");

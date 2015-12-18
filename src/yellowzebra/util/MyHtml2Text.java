@@ -10,6 +10,7 @@ public class MyHtml2Text extends HTMLEditorKit.ParserCallback {
 	StringBuffer s;
 
 	public MyHtml2Text() {
+
 	}
 
 	public void parse(Reader in) throws IOException {

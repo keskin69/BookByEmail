@@ -150,7 +150,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		JPanel pnlTop = new JPanel();
 		contentPane.add(pnlTop, BorderLayout.CENTER);
 		GridBagLayout gbl_pnlTop = new GridBagLayout();
-		gbl_pnlTop.columnWeights = new double[] { 1.0, 1.6 };
+		gbl_pnlTop.columnWeights = new double[] { 1.0, 1.9 };
 		gbl_pnlTop.rowWeights = new double[] { 1.3, 1.0 };
 		pnlTop.setLayout(gbl_pnlTop);
 

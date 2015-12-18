@@ -28,7 +28,7 @@ public class Isango extends AParser {
 	public void trimBody(String msg) {
 		content = msg;
 
-		skipAfter("Product Name");
+		skipAfter("Product Name\n");
 	}
 
 	public MyBooking parse(String subject, String msg) {
@@ -38,7 +38,7 @@ public class Isango extends AParser {
 		trimBody(msg);
 
 		String product = getLine();
-		skipAfter("Start date of travel");
+		skipAfter("Start date of travel\n");
 		line = getLine();
 
 		Date date = null;
@@ -46,10 +46,9 @@ public class Isango extends AParser {
 			date = ISAGO_DATE.parse(line);
 		} catch (ParseException e) {
 			Logger.err("Wrong date format " + line);
-			return null;
 		}
 
-		skipAfter("Start Time");
+		skipAfter("Start Time\n");
 		line = getLine();
 		token = split(line, " ");
 		String time = token[0].substring(0, 2) + ":" + token[0].substring(2, 4);
@@ -58,17 +57,17 @@ public class Isango extends AParser {
 
 		// Customer
 		Customer customer = new Customer();
-		skipAfter("Lead Passenger Name");
+		skipAfter("Lead Passenger Name\n");
 		line = getLine();
 		token = line.split(" ", 2);
 		customer.setFirstName(token[0].trim());
 		customer.setLastName(token[1].trim());
 
-		skipAfter("Lead Passenger Email");
+		skipAfter("Lead Passenger Email\n");
 		line = getLine();
 		customer.setEmailAddress(line);
 
-		skipAfter("Lead Passenger Phone");
+		skipAfter("Lead Passenger Phone\n");
 		line = getLine();
 		customer.setPhoneNumbers(ParserUtils.setPhone(line));
 		customer.setCustomFields(null);
@@ -80,16 +79,16 @@ public class Isango extends AParser {
 		ArrayList<PeopleNumber> peopleList = new ArrayList<PeopleNumber>();
 		PeopleNumber number = new PeopleNumber();
 
-		skipAfter("No of Adult Passengers");
+		skipAfter("No of Adult Passengers\n");
 		line = getLine();
-		number.setNumber(new Integer(line));
+		number.setNumber(Integer.parseInt(line));
 		number.setPeopleCategoryId("Cadults");
 		peopleList.add(number);
 
-		skipAfter("No of Child Passengers");
+		skipAfter("No of Child Passengers\n");
 		line = getLine();
 		try {
-			number.setNumber(new Integer(line));
+			number.setNumber(Integer.parseInt(line));
 			number.setPeopleCategoryId("Cchildren");
 			peopleList.add(number);
 		} catch (NumberFormatException e) {
@@ -100,7 +99,7 @@ public class Isango extends AParser {
 		participants.setDetails(null);
 		booking.setParticipants(participants);
 
-		skipAfter("Special Request");
+		skipAfter("Special Request\n");
 		int idx = content.indexOf("End customer Total price:");
 		booking.details = content.substring(0, idx).trim();
 

@@ -31,6 +31,7 @@ public class Getty extends AParser {
 	public void trimBody(String msg) {
 		content = msg;
 		skipAfter("Option:");
+		getLine();
 	}
 
 	public MyBooking parse(String subject, String msg) {
@@ -39,7 +40,7 @@ public class Getty extends AParser {
 
 		trimBody(msg);
 
-		line = getNextLine();
+		line = getLine();
 		String product = split(line, "\\(")[0];
 
 		skipAfter("Date:");
@@ -65,14 +66,14 @@ public class Getty extends AParser {
 		skipAfter("Number of participants:");
 		line = getNextLine();
 		token = split(line, " ");
-		number.setNumber(new Integer(token[0]));
+		number.setNumber(Integer.parseInt(token[0]));
 		number.setPeopleCategoryId("Cadults");
 		peopleList.add(number);
 
 		line = getNextLine();
 		if (!line.startsWith("Reference")) {
 			token = split(line, " ");
-			number.setNumber(new Integer(token[0]));
+			number.setNumber(Integer.parseInt(token[0]));
 			number.setPeopleCategoryId("Cchildren");
 			peopleList.add(number);
 		}
@@ -88,7 +89,7 @@ public class Getty extends AParser {
 		// Customer
 		Customer customer = new Customer();
 
-		skipAfter("Main customer:");
+		skipAfter("Main customer:\n");
 		line = getLine();
 		token = line.split(" ", 2);
 		customer.setFirstName(token[0].trim());

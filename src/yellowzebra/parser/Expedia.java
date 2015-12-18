@@ -59,7 +59,7 @@ public class Expedia extends AParser {
 		for (String str : token) {
 			if (!str.equals("")) {
 				String t[] = split(str, " ");
-				number.setNumber(new Integer(t[1]));
+				number.setNumber(Integer.parseInt(t[1]));
 				number.setPeopleCategoryId(ParserUtils.getCustomerType(t[0]));
 				peopleList.add(number);
 			}

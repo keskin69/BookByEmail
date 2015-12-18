@@ -69,7 +69,7 @@ public abstract class AParser implements IParser {
 		String token[] = str.split(delim);
 
 		for (int i = 0; i < token.length; i++) {
-			token[i] = token[i].trim();
+			token[i] = token[i].replace(String.valueOf((char) 160), " ").trim();
 		}
 
 		return token;
@@ -80,7 +80,7 @@ public abstract class AParser implements IParser {
 		String line = content.substring(0, idx);
 		content = content.substring(idx + 1);
 
-		return line;
+		return line.trim();
 	}
 
 	public String getNextLine() {
@@ -91,7 +91,7 @@ public abstract class AParser implements IParser {
 	public void skipAfter(String key) {
 		int iS = content.indexOf(key);
 
-		content = content.substring(iS + key.length() + 1);
+		content = content.substring(iS + key.length());
 	}
 
 	public String strip(String msg, String key) {

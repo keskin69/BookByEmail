@@ -9,7 +9,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
-import javax.swing.border.LineBorder;
+
+import yellowzebra.util.MailConfig;
 
 public class SpringPanel extends JPanel {
 	/**
@@ -17,7 +18,7 @@ public class SpringPanel extends JPanel {
 	 */
 	private static final long serialVersionUID = -5022909574876820687L;
 	public SpringLayout layout = null;
-	private static int HEIGHT = 23;
+	private static int HEIGHT = 22;
 	private int row = 0;
 
 	public SpringPanel() {
@@ -63,7 +64,7 @@ public class SpringPanel extends JPanel {
 		}
 
 		if (comp2 instanceof JTextArea) {
-			comp2.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+			comp2.setBorder(MailConfig.LineBorder);
 		}
 
 		layout.putConstraint(SpringLayout.NORTH, comp1, 10 + row, SpringLayout.NORTH, this);
@@ -72,7 +73,7 @@ public class SpringPanel extends JPanel {
 
 		if (comp2 != null) {
 			Dimension d = comp2.getPreferredSize();
-			comp2.setPreferredSize(new Dimension((int) (d.getWidth() * 1.2), (int) d.getHeight()));
+			comp2.setPreferredSize(new Dimension((int) (d.getWidth() * 1.1), (int) d.getHeight()));
 			layout.putConstraint(SpringLayout.NORTH, comp2, 5 + row, SpringLayout.NORTH, this);
 			layout.putConstraint(SpringLayout.WEST, comp2, 5, SpringLayout.EAST, comp1);
 			add(comp2);

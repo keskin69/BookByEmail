@@ -17,7 +17,7 @@ import yellowzebra.util.MailConfig;
 
 public class CreateBooking {
 
-	private static Customer createCustomer(String name, String lastName, String eMail) {
+	private static Customer testCustomer(String name, String lastName, String eMail) {
 		Customer customer = new Customer();
 		customer.setFirstName(name);
 		customer.setLastName(lastName);
@@ -28,7 +28,7 @@ public class CreateBooking {
 		return customer;
 	}
 
-	private static Booking createBooking(Customer customer, String product, Date date, String time) {
+	private static Booking testBooking(Customer customer, String product, Date date, String time) {
 		Booking booking = new Booking();
 
 		String productId = ProductTools.getInstance().getProductId(product);
@@ -86,11 +86,10 @@ public class CreateBooking {
 		// update bookingApi String[] authNames = new String[] { "keyAuth",
 		// "secretKey" };
 		bookingApi.bookingsPost(newBooking, "", false, false, false, false);
-
 	}
 
 	public static void main(String[] args) {
-		Customer testCustomer = CreateBooking.createCustomer("Custo5", "Santa5", "santa@gmail.com");
+		Customer testCustomer = CreateBooking.testCustomer("Custo5", "Santa5", "santa@gmail.com");
 		// test.postCustomer(testCustomer);
 		try {
 			Booking booking = null;
@@ -98,7 +97,7 @@ public class CreateBooking {
 			// booking = CreateBooking.createBooking(testCustomer, "Tour",
 			// "2015-12-12", "09:00");
 			Date date = MailConfig.SHORTDATE.parse("2015-12-22");
-			booking = CreateBooking.createBooking(testCustomer, "Dinner Cruise with Live Music", date, "19:00");
+			booking = CreateBooking.testBooking(testCustomer, "Dinner Cruise with Live Music", date, "19:00");
 			CreateBooking.postBooking(booking);
 
 		} catch (ApiException e) {

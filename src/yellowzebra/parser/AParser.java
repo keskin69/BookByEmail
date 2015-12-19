@@ -40,27 +40,32 @@ public abstract class AParser implements IParser {
 	protected void setProduct(String product, Date date, String time) {
 		booking.setProductName(product);
 		String productId = ProductTools.getInstance().getProductId(product);
+		Date startDate = null;
+		try {
+			startDate = MailConfig.DEFAULT_DATE.parse(MailConfig.SHORTDATE.format(date) + " " + time);
+			booking.startTimeNote = MailConfig.DEFAULT_DATE.format(startDate);
+		} catch (ParseException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 
 		if (productId == null) {
 			Logger.err("\"" + product + "\" cannot be found in available tour names");
 		} else {
 			booking.setProductId(productId);
-
 			Product.TypeEnum prodType = ProductTools.getInstance().getProductType(product);
+
 			if (prodType == Product.TypeEnum.FIXED) {
 				String eventId = new EventTools().getEventId(productId, date, time);
 				if (eventId == null) {
-					Logger.err("\"" + product + "\" is not avaiable at " + date + " " + time);
+					Logger.err("\"" + product + "\" is not avaiable at " + booking.startTimeNote);
+				} else {
+					Logger.log("Ready for creating booking");
 				}
 
 				booking.setEventId(eventId);
-			}
-
-			try {
-				Date startDate = MailConfig.DEFAULT_DATE.parse(MailConfig.SHORTDATE.format(date) + " " + time);
+			} else {
 				booking.setStartTime(startDate);
-			} catch (ParseException e) {
-				Logger.err("\"" + product + "\" is not avaiable at " + date + " " + time);
 			}
 		}
 	}

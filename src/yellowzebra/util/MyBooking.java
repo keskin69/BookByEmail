@@ -8,6 +8,7 @@ public class MyBooking extends Booking {
 	public String details = null;
 	public String agent = null;
 	public String pickup = null;
+	public String startTimeNote = null;
 
 	public void dump() {
 		System.out.println("Agent:" + agent + "-" + voucherNumber);
@@ -18,11 +19,7 @@ public class MyBooking extends Booking {
 			System.out.println("Event Id: " + getEventId());
 		}
 
-		try {
-			System.out.println("Start Time: " + getStartTime().toString());
-		} catch (NullPointerException ex) {
-
-		}
+		System.out.println("Start Time: " + startTimeNote);
 
 		System.out.println("Participant: " + getParticipants().getNumbers().size());
 		Customer customer = getCustomer();

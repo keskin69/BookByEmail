@@ -9,7 +9,6 @@ import javax.mail.MessagingException;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
 
 import io.swagger.client.ApiException;
 import io.swagger.client.model.PeopleNumber;
@@ -20,18 +19,18 @@ import yellowzebra.util.MailConfig;
 import yellowzebra.util.MyBooking;
 
 public class ParserController implements Runnable {
-	private static DefaultTableModel model = null;
+	private static MailTable tbl = null;
 	private static SpringPanel panel = null;
 	private static boolean isPaused = true;
 	private static MyBooking booking = null;
 
-	public ParserController(DefaultTableModel model, SpringPanel panel) {
-		ParserController.model = model;
+	public ParserController(MailTable tbl, SpringPanel panel) {
+		ParserController.tbl = tbl;
 		ParserController.panel = panel;
 	}
 
 	public static synchronized void refreshMailList() {
-		model.setRowCount(0);
+		tbl.clearTable();
 
 		ArrayList<Entry<String, Message>> list = null;
 		try {
@@ -45,7 +44,7 @@ public class ParserController implements Runnable {
 				String subject = msg.getSubject();
 				String date = MailConfig.DEFAULT_DATE.format(msg.getReceivedDate()).toString();
 
-				model.addRow(new Object[] { from, subject, date, parser, msg });
+				tbl.addRow(new Object[] { from, subject, date, parser, msg });
 			}
 		} catch (MessagingException e) {
 			// TODO Auto-generated catch block
@@ -86,8 +85,9 @@ public class ParserController implements Runnable {
 		MyBooking finalBooking = booking;
 
 		finalBooking.getCustomer()
-				.setFirstName(booking.getCustomer().getLastName() + " " + booking.getCustomer().getLastName());
+				.setFirstName(booking.getCustomer().getFirstName() + " " + booking.getCustomer().getLastName());
 		finalBooking.getCustomer().setLastName(booking.agent + "-" + booking.voucherNumber);
+
 		return finalBooking;
 	}
 
@@ -107,9 +107,7 @@ public class ParserController implements Runnable {
 		panel.addRow("Tour Agent", booking.agent);
 		panel.addRow("Voucher Number(s)", booking.voucherNumber);
 		panel.addRow("Tour Name", booking.getProductName());
-
-		str = MailConfig.DEFAULT_DATE.format(booking.getStartTime());
-		panel.addRow("Booking Time", str);
+		panel.addRow("Booking Time", booking.startTimeNote);
 		panel.addRow("Participant Information", null);
 
 		for (PeopleNumber n : booking.getParticipants().getNumbers()) {

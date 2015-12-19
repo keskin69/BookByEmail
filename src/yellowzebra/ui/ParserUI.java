@@ -25,14 +25,11 @@ import javax.imageio.ImageIO;
 import javax.mail.Message;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
-import javax.swing.table.DefaultTableModel;
 
 import com.alee.laf.WebLookAndFeel;
 
@@ -47,57 +44,33 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1022086231912876450L;
-	private JButton btnRefresh = null;
-	private static JTable tblMail = null;
+	private static JButton btnRefresh = null;
+	private static MailTable tblMail = null;
 	private static SpringPanel pnlContent = null;
-	private HTMLPanel txtMail;
-	private LinkLabel lblStatus = null;
-	private JButton btnPost = null;
+	private static HTMLPanel txtMail;
+	private static LinkLabel lblStatus = null;
+	private static JLabel lblBooking = null;
+	private static JButton btnPost = null;
 
-	private static DefaultTableModel model = new DefaultTableModel(new Object[][] {},
-			new String[] { "Sender", "Subject", "Date", "Parser", "Message" }) {
-		/**
-				 * 
-				 */
-		private static final long serialVersionUID = -6699335251415484030L;
-		boolean[] columnEditables = new boolean[] { false, false, false, false, false };
-
-		public boolean isCellEditable(int row, int column) {
-			return columnEditables[column];
+	public void setIcon(String res) {
+		BufferedImage myImg = null;
+		InputStream imgStream = getClass().getResourceAsStream("/resources/" + res);
+		try {
+			myImg = ImageIO.read(imgStream);
+		} catch (Exception e) {
+			Logger.err("Cannot read image file " + res);
 		}
-	};
+
+		setIconImage(myImg);
+	}
 
 	public void postUI() {
 		Logger.label = lblStatus;
-
-		tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
-		tblMail.removeColumn(tblMail.getColumnModel().getColumn(3));
-		tblMail.getColumnModel().getColumn(0).setPreferredWidth(100);
-		tblMail.getColumnModel().getColumn(1).setPreferredWidth(240);
-		tblMail.getColumnModel().getColumn(2).setPreferredWidth(110);
-
-		model.addTableModelListener(new TableModelListener() {
-			public void tableChanged(TableModelEvent e) {
-
-				BufferedImage myImg = null;
-				if (model.getRowCount() >= 0) {
-					myImg = getImage("red_email.png");
-				} else {
-					myImg = getImage("blue_email.png");
-				}
-
-				setIconImage(myImg);
-			}
-		});
-
-		// load icon
-		BufferedImage myImg = getImage("blue_email.png");
-		setIconImage(myImg);
-
+		setIcon("blue_email.png");
 		setVisible(true);
 
 		// init controller thread
-		ParserController controller = new ParserController(model, pnlContent);
+		ParserController controller = new ParserController(tblMail, pnlContent);
 		Thread t = new Thread(controller);
 		t.start();
 	}
@@ -113,7 +86,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			public void run() {
 				try {
 					final ParserUI frame = new ParserUI();
-
+	
 					frame.postUI();
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -121,18 +94,6 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			}
 		});
 
-	}
-
-	private BufferedImage getImage(String res) {
-		BufferedImage myImg = null;
-		InputStream imgStream = getClass().getResourceAsStream("/resources/" + res);
-		try {
-			myImg = ImageIO.read(imgStream);
-		} catch (Exception e) {
-			Logger.err("Cannot read image file " + res);
-		}
-
-		return myImg;
 	}
 
 	/**
@@ -169,9 +130,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		pnlTable.setMaximumSize(new Dimension(100, Integer.MAX_VALUE));
 		pnlTable.setPreferredSize(new Dimension(100, Integer.MAX_VALUE));
 
-		tblMail = new JTable();
-		tblMail.setFillsViewportHeight(true);
-		tblMail.setModel(model);
+		tblMail = new MailTable(this);
 
 		pnlTable.setRowHeaderView(tblMail);
 		pnlTable.setViewportView(tblMail);
@@ -243,7 +202,17 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		pnlStatus.setLayout(new BorderLayout(0, 0));
 
 		lblStatus = new LinkLabel("Ready");
-		pnlStatus.add(lblStatus);
+		lblBooking = new JLabel("Last Booking Id: ");
+		lblBooking.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent evt) {
+				String bookingId = lblBooking.getText().split(": ")[1];
+				StringSelection stringSelection = new StringSelection(bookingId);
+				Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
+				clpbrd.setContents(stringSelection, null);
+			}
+		});
+		pnlStatus.add(lblStatus, BorderLayout.CENTER);
+		pnlStatus.add(lblBooking, BorderLayout.EAST);
 
 		addWindowStateListener(this);
 	}
@@ -254,7 +223,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 			String subject = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 1);
 
-			Message msg = (Message) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 4);
+			Message msg = tblMail.getSelectedMail();
 			txtMail.setContent(msg);
 
 			String parser = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 3);
@@ -267,7 +236,6 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			}
 
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-			lblStatus.setText("Ready");
 		}
 	}
 
@@ -289,7 +257,19 @@ public class ParserUI extends JFrame implements WindowStateListener {
 				StringSelection stringSelection = new StringSelection(bookingId);
 				Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
 				clpbrd.setContents(stringSelection, null);
-				lblStatus.setText("<HTML>Booking created <a href=>" + bookingId + "</a></HTML>", e.getMessage());
+				lblStatus.setText("<HTML>Booking successfully created <a href=>" + bookingId + "</a></HTML>",
+						e.getMessage());
+				lblBooking.setText("Last Booking: " + bookingId);
+
+				// move processed e-mail
+				Message msg = tblMail.getSelectedMail();
+				try {
+					MailReader.moveMail(msg);
+					tblMail.removeSelected();
+				} catch (Exception e1) {
+					// TODO Auto-generated catch block
+					Logger.err("Cannot move e-mail to another folder");
+				}
 			}
 		}
 

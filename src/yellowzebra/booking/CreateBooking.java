@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import io.swagger.client.ApiException;
+import io.swagger.client.Configuration;
 import io.swagger.client.api.BookingsApi;
 import io.swagger.client.api.CustomersApi;
 import io.swagger.client.model.Booking;
@@ -12,6 +13,7 @@ import io.swagger.client.model.Customer;
 import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
 import io.swagger.client.model.Product.TypeEnum;
+import yellowzebra.util.ConfigReader;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MailConfig;
 
@@ -41,7 +43,7 @@ public class CreateBooking {
 		} else {
 			Date startDate;
 			try {
-				startDate = MailConfig.DEFAULT_DATE.parse(date + " " + time);
+				startDate = MailConfig.DEFAULT_DATE.parse(MailConfig.SHORTDATE.format(date) + " " + time);
 				booking.setStartTime(startDate);
 			} catch (ParseException e) {
 				// TODO Auto-generated catch block
@@ -89,6 +91,12 @@ public class CreateBooking {
 	}
 
 	public static void main(String[] args) {
+		// init Bookeo API
+		ConfigReader.init("config.properties");
+		String apiKey = ConfigReader.getInstance().getProperty("api_key");
+		String secretKey = ConfigReader.getInstance().getProperty("secret_key");
+		Configuration.setKey(apiKey, secretKey);
+		
 		Customer testCustomer = CreateBooking.testCustomer("Custo5", "Santa5", "santa@gmail.com");
 		// test.postCustomer(testCustomer);
 		try {

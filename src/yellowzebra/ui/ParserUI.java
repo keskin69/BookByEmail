@@ -34,6 +34,7 @@ import javax.swing.border.LineBorder;
 import com.alee.laf.WebLookAndFeel;
 
 import io.swagger.client.ApiException;
+import io.swagger.client.Configuration;
 import yellowzebra.util.ConfigReader;
 import yellowzebra.util.Logger;
 import yellowzebra.util.ParserUtils;
@@ -82,11 +83,16 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		WebLookAndFeel.install();
 		ConfigReader.init("config.properties");
 
+		// init Bookeo API
+		String apiKey = ConfigReader.getInstance().getProperty("api_key");
+		String secretKey = ConfigReader.getInstance().getProperty("secret_key");
+		Configuration.setKey(apiKey, secretKey);
+
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					final ParserUI frame = new ParserUI();
-	
+
 					frame.postUI();
 				} catch (Exception e) {
 					e.printStackTrace();

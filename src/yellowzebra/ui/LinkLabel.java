@@ -11,6 +11,8 @@ import java.net.URISyntaxException;
 
 import javax.swing.JLabel;
 
+import yellowzebra.util.Logger;
+
 public class LinkLabel extends JLabel {
 	/**
 	 * 
@@ -29,11 +31,9 @@ public class LinkLabel extends JLabel {
 						Desktop.getDesktop().browse(new URI(url));
 					}
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					Logger.exception(e1);
 				} catch (URISyntaxException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					Logger.exception(e1);
 				}
 
 			}

@@ -82,6 +82,9 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	public static void main(String[] args) {
 		WebLookAndFeel.install();
 		ConfigReader.init("config.properties");
+		
+		// init logger
+		Logger.init();
 
 		// init Bookeo API
 		String apiKey = ConfigReader.getInstance().getProperty("api_key");
@@ -95,7 +98,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 
 					frame.postUI();
 				} catch (Exception e) {
-					e.printStackTrace();
+					Logger.exception(e);
 				}
 			}
 		});
@@ -221,6 +224,12 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		pnlStatus.add(lblBooking, BorderLayout.EAST);
 
 		addWindowStateListener(this);
+		
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		    	Logger.close();
+		    }
+		});
 	}
 
 	private void parseMail() {

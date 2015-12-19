@@ -46,8 +46,7 @@ public class CreateBooking {
 				startDate = MailConfig.DEFAULT_DATE.parse(MailConfig.SHORTDATE.format(date) + " " + time);
 				booking.setStartTime(startDate);
 			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Logger.exception(e);
 			}
 		}
 
@@ -77,8 +76,7 @@ public class CreateBooking {
 			// "secretKey" };
 			customerApi.customersPost(newCustomer);
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.exception(e);
 		}
 	}
 
@@ -117,8 +115,7 @@ public class CreateBooking {
 				Logger.err(e.getMessage());
 			}
 		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.exception(e);
 		}
 
 		System.out.println("Posting done...");

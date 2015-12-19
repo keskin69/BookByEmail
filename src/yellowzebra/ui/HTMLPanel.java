@@ -9,6 +9,8 @@ import javax.mail.Multipart;
 import javax.mail.Part;
 import javax.swing.JTextPane;
 
+import yellowzebra.util.Logger;
+
 public class HTMLPanel extends JTextPane {
 	/**
 	 * 
@@ -40,9 +42,9 @@ public class HTMLPanel extends JTextPane {
 
 			this.validate();
 		} catch (MessagingException e) {
-			e.printStackTrace();
+			Logger.exception(e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Logger.exception(e);
 		}
 	}
 

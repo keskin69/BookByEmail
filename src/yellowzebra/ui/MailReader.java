@@ -61,7 +61,7 @@ public class MailReader {
 		} catch (NoSuchProviderException e) {
 			Logger.err("Cannot access e-mail server");
 		} catch (MessagingException e) {
-			Logger.err(e.getMessage(), "Cannot read smtp.properties file");
+			Logger.err("Cannot read smtp.properties file");
 		}
 	}
 
@@ -131,12 +131,12 @@ public class MailReader {
 
 			Folder dest = store.getFolder(destFolder);
 			dest.open(Folder.READ_WRITE);
-			
+
 			Message[] msgArray = new Message[] { msg };
 
 			inbox.copyMessages(msgArray, dest);
 			msg.setFlag(Flags.Flag.DELETED, true);
-			
+
 			inbox.expunge();
 			dest.close(true);
 		}

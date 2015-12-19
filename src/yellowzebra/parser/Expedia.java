@@ -39,8 +39,7 @@ public class Expedia extends AParser {
 		try {
 			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\expedia.txt");
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Logger.exception(e1);
 		}
 
 		String line = null;
@@ -129,8 +128,7 @@ public class Expedia extends AParser {
 		try {
 			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\expedia.txt");
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Logger.exception(e1);
 		}
 
 		Expedia parser = new Expedia();

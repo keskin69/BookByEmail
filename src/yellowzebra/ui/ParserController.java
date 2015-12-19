@@ -15,6 +15,7 @@ import io.swagger.client.model.PeopleNumber;
 import io.swagger.client.model.PhoneNumber;
 import yellowzebra.booking.CreateBooking;
 import yellowzebra.parser.AParser;
+import yellowzebra.util.Logger;
 import yellowzebra.util.MailConfig;
 import yellowzebra.util.MyBooking;
 
@@ -47,8 +48,7 @@ public class ParserController implements Runnable {
 				tbl.addRow(new Object[] { from, subject, date, parser, msg });
 			}
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.exception(e);
 		}
 	}
 
@@ -65,14 +65,11 @@ public class ParserController implements Runnable {
 			p = (AParser) c.newInstance();
 
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.exception(e);
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.exception(e);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.exception(e);
 		}
 
 		if (p != null) {
@@ -156,8 +153,7 @@ public class ParserController implements Runnable {
 				}
 				Thread.sleep(1 * 60 * 1000);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Logger.exception(e);
 			}
 		}
 	}

@@ -45,8 +45,7 @@ public abstract class AParser implements IParser {
 			startDate = MailConfig.DEFAULT_DATE.parse(MailConfig.SHORTDATE.format(date) + " " + time);
 			booking.startTimeNote = MailConfig.DEFAULT_DATE.format(startDate);
 		} catch (ParseException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Logger.exception(e1);
 		}
 
 		if (productId == null) {

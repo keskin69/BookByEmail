@@ -129,8 +129,7 @@ public class Getty extends AParser {
 			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\getty.html");
 			msg = ParserUtils.html2Text(msg);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			Logger.exception(e1);
 		}
 
 		Getty parser = new Getty();

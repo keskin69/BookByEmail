@@ -25,7 +25,6 @@ public class MailReader {
 	private static Store store = null;
 	private static ConfigReader props = null;
 	private static final List<Class<?>> classes = ClassFinder.find("yellowzebra.parser");
-	private static String destFolder = null;
 
 	public static MailReader getInstance() {
 		if (instance == null) {
@@ -37,7 +36,6 @@ public class MailReader {
 
 	private MailReader() {
 		props = ConfigReader.getInstance();
-		destFolder = (String) ConfigReader.getInstance().get("processed.folder");
 		Session session = Session.getDefaultInstance(props, null);
 
 		try {
@@ -120,25 +118,27 @@ public class MailReader {
 		return null;
 	}
 
-	public static void moveMail(Message msg) throws Exception {
-		if (!store.isConnected()) {
-			connect();
-		}
+	public static void moveMail(Message msg, String destFolder) throws Exception {
+		if (destFolder != null) {
+			if (!store.isConnected()) {
+				connect();
+			}
 
-		if (store.isConnected()) {
-			Folder inbox = store.getFolder("Inbox");
-			inbox.open(Folder.READ_WRITE);
+			if (store.isConnected()) {
+				Folder inbox = store.getFolder("Inbox");
+				inbox.open(Folder.READ_WRITE);
 
-			Folder dest = store.getFolder(destFolder);
-			dest.open(Folder.READ_WRITE);
+				Folder dest = store.getFolder(destFolder);
+				dest.open(Folder.READ_WRITE);
 
-			Message[] msgArray = new Message[] { msg };
+				Message[] msgArray = new Message[] { msg };
 
-			inbox.copyMessages(msgArray, dest);
-			msg.setFlag(Flags.Flag.DELETED, true);
+				inbox.copyMessages(msgArray, dest);
+				msg.setFlag(Flags.Flag.DELETED, true);
 
-			inbox.expunge();
-			dest.close(true);
+				inbox.expunge();
+				dest.close(true);
+			}
 		}
 	}
 }

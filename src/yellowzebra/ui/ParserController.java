@@ -13,6 +13,7 @@ import javax.swing.JTextField;
 import io.swagger.client.model.Booking;
 import io.swagger.client.model.PeopleNumber;
 import io.swagger.client.model.PhoneNumber;
+import yellowzebra.booking.ProductTools;
 import yellowzebra.parser.AParser;
 import yellowzebra.util.BookingException;
 import yellowzebra.util.Logger;
@@ -24,6 +25,7 @@ public class ParserController implements Runnable {
 	private static SpringPanel panel = null;
 	private static boolean isPaused = true;
 	private static MyBooking myBooking = null;
+	private static String currentFolder = null;
 
 	public ParserController(MailTable tbl, SpringPanel panel) {
 		ParserController.tbl = tbl;
@@ -53,7 +55,14 @@ public class ParserController implements Runnable {
 	}
 
 	public static Booking getBooking() throws BookingException {
-		return myBooking.getBooking();
+		Booking booking = null;
+
+		if (myBooking != null) {
+			myBooking.booking.setProductName(panel.getProductName());
+			booking = myBooking.getBooking();
+		}
+
+		return booking;
 	}
 
 	public static synchronized void fillContent(String subject, String msg, String parser) {
@@ -72,8 +81,20 @@ public class ParserController implements Runnable {
 		}
 
 		if (p != null) {
+			currentFolder = p.folder;
 			myBooking = p.parse(subject, msg);
 			booking2Component(myBooking);
+		}
+	}
+
+	public static void moveMail() {
+		Message msg = (Message) tbl.getColumn(4);
+		try {
+			MailReader.moveMail(msg, currentFolder);
+			tbl.removeSelected();
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			Logger.err("Cannot move e-mail to another folder");
 		}
 	}
 
@@ -81,7 +102,8 @@ public class ParserController implements Runnable {
 		isPaused = p;
 	}
 
-	// Create the Swing components regarding the booking content
+	// Create the Swing components regarding the booking content inside the
+	// e-mail message
 	private static void booking2Component(MyBooking mybooking) {
 		panel.reset();
 
@@ -92,7 +114,7 @@ public class ParserController implements Runnable {
 		panel.addRow("Title", mybooking.booking.getTitle());
 		panel.addRow("Tour Agent", mybooking.agent);
 		panel.addRow("Voucher Number(s)", mybooking.voucherNumber);
-		panel.addRow("Tour Name", mybooking.booking.getProductName());
+		panel.addCombo("Tour Name", mybooking.booking.getProductName(), ProductTools.getInstance().getProducts());
 		panel.addRow("Booking Time", mybooking.getTourDateTime());
 		panel.addRow("Participant Information", null);
 

@@ -243,13 +243,12 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		if (tblMail.getSelectedRow() >= 0) {
 			lblStatus.setText("Parsing selected e-mail to generate booking information");
 			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-			String subject = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 1);
-
-			Message msg = tblMail.getSelectedMail();
+			String subject = (String) tblMail.getColumn(1);
+			String parser = (String) tblMail.getColumn(3);
+			
+			Message msg = (Message) tblMail.getColumn(4);
 			txtMail.setContent(msg);
-
-			String parser = (String) tblMail.getModel().getValueAt(tblMail.getSelectedRow(), 3);
-
+			
 			if (txtMail.getContentType().equals("text/plain")) {
 				ParserController.fillContent(subject, txtMail.getText(), parser);
 			} else {
@@ -285,14 +284,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 				lblBooking.setText("Last Booking: " + bookingId);
 
 				// move processed e-mail
-				Message msg = tblMail.getSelectedMail();
-				try {
-					MailReader.moveMail(msg);
-					tblMail.removeSelected();
-				} catch (Exception e1) {
-					// TODO Auto-generated catch block
-					Logger.err("Cannot move e-mail to another folder");
-				}
+				ParserController.moveMail();
 			}
 		} catch (BookingException e) {
 			Logger.err(e.getMessage());

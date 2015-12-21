@@ -2,6 +2,7 @@ package yellowzebra.booking;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 import io.swagger.client.ApiException;
@@ -17,7 +18,8 @@ public class ProductTools extends ArrayList<Product> {
 	 * 
 	 */
 	private static final long serialVersionUID = 758440150183126121L;
-	public static ProductTools instance = null;
+	private static ProductTools instance = null;
+	private static String productArray[] = null;
 
 	// Product list changes rarely
 	// Make it as a singletons
@@ -27,6 +29,10 @@ public class ProductTools extends ArrayList<Product> {
 		}
 
 		return instance;
+	}
+
+	public String[] getProducts() {
+		return productArray;
 	}
 
 	private ProductTools() {
@@ -45,6 +51,15 @@ public class ProductTools extends ArrayList<Product> {
 		} catch (ApiException e) {
 			Logger.exception(e);
 		}
+
+		productArray = new String[this.size() + 1];
+		productArray[0] = "";
+		int i = 1;
+		for (Product p : this) {
+			productArray[i++] = p.getName();
+		}
+		
+		Arrays.sort(productArray);
 	}
 
 	public String getProductId(String name) {

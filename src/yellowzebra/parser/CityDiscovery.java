@@ -22,7 +22,8 @@ public class CityDiscovery extends AParser {
 		subjectReg = "Booking ref";
 		fromReg = "confirmation@city-discovery.com";
 		agent = "CityDiscover";
-
+		folder = "CD";
+		
 		core();
 	}
 

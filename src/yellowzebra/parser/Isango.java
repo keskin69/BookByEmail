@@ -22,6 +22,7 @@ public class Isango extends AParser {
 		subjectReg = "Booking Confirmation - ISA";
 		fromReg = "support@isango.com";
 		agent = "Isango";
+		folder = "ISG";
 
 		core();
 	}

@@ -25,6 +25,7 @@ public class Getty extends AParser {
 		subjectReg = "Booking - ";
 		fromReg = "do-not-reply@getyourguide.com";
 		agent = "Getty";
+		folder = "GYG";
 
 		core();
 	}

@@ -1,6 +1,5 @@
 package yellowzebra.ui;
 
-import javax.mail.Message;
 import javax.swing.JTable;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
@@ -28,11 +27,11 @@ public class MailTable extends JTable {
 		model.removeRow(getSelectedRow());
 	}
 	
-	public Message getSelectedMail() {
-		Message msg = (Message) getModel().getValueAt(getSelectedRow(), 4);
-
-		return msg;
+	public Object getColumn(int col) {	
+		return model.getValueAt(getSelectedRow(), col);
 	}
+	
+
 
 	public void clearTable() {
 		model.setRowCount(0);

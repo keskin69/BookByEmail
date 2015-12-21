@@ -26,7 +26,8 @@ public class Expedia extends AParser {
 		subjectReg = "Expedia - Booking report";
 		fromReg = "Notifications@expediacustomer.com";
 		agent = "Expedia";
-
+		folder = "EXP";
+		
 		core();
 	}
 

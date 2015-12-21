@@ -1,32 +1,19 @@
 package yellowzebra.parser;
 
-import java.text.ParseException;
-import java.util.Date;
-
-import io.swagger.client.model.Product;
-import yellowzebra.booking.EventTools;
-import yellowzebra.booking.ProductTools;
-import yellowzebra.util.Logger;
-import yellowzebra.util.MailConfig;
 import yellowzebra.util.MyBooking;
 
 public abstract class AParser implements IParser {
 	protected String subjectReg = null;
 	protected String fromReg = null;
 	protected String agent = null;
-	protected MyBooking booking = null;
+	protected MyBooking mybooking = null;
 	protected String content;
 
 	public abstract void trimBody(String msg);
 
 	protected void core() {
-		booking = new MyBooking();
-		booking.setInitialPayments(null);
-		booking.setCouponCodes(null);
-		booking.setOptions(null);
-		booking.setResources(null);
-		booking.setBookingNumber(null);
-		booking.agent = agent;
+		mybooking = new MyBooking();
+		mybooking.agent = agent;
 	}
 
 	public boolean isApplicable(String subject, String from) {
@@ -35,38 +22,6 @@ public abstract class AParser implements IParser {
 		}
 
 		return false;
-	}
-
-	protected void setProduct(String product, Date date, String time) {
-		booking.setProductName(product);
-		String productId = ProductTools.getInstance().getProductId(product);
-		Date startDate = null;
-		try {
-			startDate = MailConfig.DEFAULT_DATE.parse(MailConfig.SHORTDATE.format(date) + " " + time);
-			booking.startTimeNote = MailConfig.DEFAULT_DATE.format(startDate);
-		} catch (ParseException e1) {
-			Logger.exception(e1);
-		}
-
-		if (productId == null) {
-			Logger.err("\"" + product + "\" cannot be found in available tour names");
-		} else {
-			booking.setProductId(productId);
-			Product.TypeEnum prodType = ProductTools.getInstance().getProductType(product);
-
-			if (prodType == Product.TypeEnum.FIXED) {
-				String eventId = new EventTools().getEventId(productId, date, time);
-				if (eventId == null) {
-					Logger.err("\"" + product + "\" is not avaiable at " + booking.startTimeNote);
-				} else {
-					Logger.log("Ready for creating booking");
-				}
-
-				booking.setEventId(eventId);
-			} else {
-				booking.setStartTime(startDate);
-			}
-		}
 	}
 
 	public static String[] split(String str, String delim) {

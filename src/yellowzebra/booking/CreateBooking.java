@@ -66,6 +66,7 @@ public class CreateBooking {
 		participants.setDetails(null);
 		booking.setParticipants(participants);
 		booking.setBookingNumber(null);
+
 		return booking;
 	}
 
@@ -89,12 +90,14 @@ public class CreateBooking {
 	}
 
 	public static void main(String[] args) {
+		Logger.init();
+
 		// init Bookeo API
 		ConfigReader.init("config.properties");
 		String apiKey = ConfigReader.getInstance().getProperty("api_key");
 		String secretKey = ConfigReader.getInstance().getProperty("secret_key");
 		Configuration.setKey(apiKey, secretKey);
-		
+
 		Customer testCustomer = CreateBooking.testCustomer("Custo5", "Santa5", "santa@gmail.com");
 		// test.postCustomer(testCustomer);
 		try {
@@ -107,8 +110,6 @@ public class CreateBooking {
 			CreateBooking.postBooking(booking);
 
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
 			if (e.getCode() == 201) {
 				Logger.log(e.getMessage());
 			} else {

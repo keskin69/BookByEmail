@@ -10,6 +10,8 @@ import java.util.Date;
 import io.swagger.client.model.Customer;
 import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
+import yellowzebra.ui.ParserUI;
+import yellowzebra.util.Logger;
 import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
 
@@ -49,27 +51,49 @@ public class CityDiscovery extends AParser {
 		cus.setPhoneNumbers(ParserUtils.setPhone(token[1]));
 
 		cus.setCustomFields(null);
-		booking.setCustomer(cus);
+		mybooking.booking.setCustomer(cus);
 
 		// tour
 		skipAfter("Name of the Tour :");
 		line = getLine();
-		token = line.split(" ", 2);
-		String product = token[1];
-
-		skipAfter("Date and time of the Tour :");
-		line = getNextLine();
-		Date date = null;
-		try {
-			date = CITY_DATE.parse(line);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (line.contains("--")) {
+			token = line.split("--", 2);
+		} else {
+			token = line.split(" ", 2);
 		}
 
-		line = getNextLine();
-		String time = line;
-		setProduct(product, date, time);
+		String product = token[1];
+		mybooking.booking.setProductName(product);
+
+		skipAfter("Date and time of the Tour :");
+		line = getLine();
+
+		if (line.equals("")) {
+			line = getLine();
+		}
+
+		String dStr = null;
+		String tStr = null;
+		if (line.contains("yyyy")) {
+			token = split(line, " ");
+			dStr = token[0];
+			tStr = token[3];
+		} else {
+			dStr = line;
+			line = getNextLine();
+			tStr = line;
+		}
+
+		Date date = null;
+		try {
+			date = CITY_DATE.parse(dStr);
+			mybooking.tourDate = date;
+		} catch (ParseException e) {
+			Logger.err("Date information cannot be retrieved");
+			Logger.exception(e);
+		}
+
+		mybooking.tourTime = tStr;
 
 		// participants
 		Participants participants = new Participants();
@@ -103,27 +127,28 @@ public class CityDiscovery extends AParser {
 
 		participants.setNumbers(peopleList);
 		participants.setDetails(null);
-		booking.setParticipants(participants);
+		mybooking.booking.setParticipants(participants);
 
 		// others
 		skipAfter("Address of customer for pick up (if possible) :");
 		line = getNextLine();
-		booking.pickup = line;
+		mybooking.pickup = line;
 
 		skipAfter("Customer Comment:");
 		line = getNextLine();
 		if (!line.startsWith("Arrival date")) {
-			booking.details = line;
+			mybooking.details = line;
 		}
 
-		booking.voucherNumber = split(subject, " ")[2];
-		booking.setTitle(booking.agent + "-" + booking.voucherNumber);
+		mybooking.voucherNumber = split(subject, " ")[2];
+		mybooking.booking.setTitle(mybooking.agent + "-" + mybooking.voucherNumber);
 
-		return booking;
+		return mybooking;
 
 	}
 
 	public static void main(String[] args) {
+		ParserUI.init();
 		String msg = null;
 		try {
 			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\city.html");

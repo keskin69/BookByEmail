@@ -35,6 +35,9 @@ import com.alee.laf.WebLookAndFeel;
 
 import io.swagger.client.ApiException;
 import io.swagger.client.Configuration;
+import io.swagger.client.model.Booking;
+import yellowzebra.booking.CreateBooking;
+import yellowzebra.util.BookingException;
 import yellowzebra.util.ConfigReader;
 import yellowzebra.util.Logger;
 import yellowzebra.util.ParserUtils;
@@ -76,13 +79,9 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		t.start();
 	}
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		WebLookAndFeel.install();
+	public static void init() {
 		ConfigReader.init("config.properties");
-		
+
 		// init logger
 		Logger.init();
 
@@ -90,6 +89,14 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		String apiKey = ConfigReader.getInstance().getProperty("api_key");
 		String secretKey = ConfigReader.getInstance().getProperty("secret_key");
 		Configuration.setKey(apiKey, secretKey);
+	}
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		WebLookAndFeel.install();
+		init();
 
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -147,7 +154,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		JPanel pnlButton = new JPanel();
 		panel.add(pnlButton, BorderLayout.SOUTH);
 
-		btnRefresh = new JButton("Refresh");
+		btnRefresh = new JButton("Get Mails");
 		btnRefresh.setToolTipText("Refresh E-Mail List");
 		btnRefresh.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -224,11 +231,11 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		pnlStatus.add(lblBooking, BorderLayout.EAST);
 
 		addWindowStateListener(this);
-		
+
 		addWindowListener(new java.awt.event.WindowAdapter() {
-		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-		    	Logger.close();
-		    }
+			public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+				Logger.close();
+			}
 		});
 	}
 
@@ -250,6 +257,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 				ParserController.fillContent(subject, con, parser);
 			}
 
+			lblStatus.setText("Ready");
 			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 		}
 	}
@@ -257,14 +265,14 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	private void postBooking() {
 		btnPost.setEnabled(false);
 		this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-		lblStatus.setText("Sending booking information to Booking engine");
+		lblStatus.setText("Sending booking information to Booking Engine");
 		try {
-			ParserController.postBooking();
+			Booking finalBooking = ParserController.getBooking();
+			CreateBooking.postBooking(finalBooking);
 			lblStatus.setText("Booking created");
 		} catch (ApiException e) {
 			if (e.getCode() != 201) {
 				Logger.err(e.getMessage());
-				lblStatus.setText(e.getMessage());
 			} else {
 				String tokens[] = e.getMessage().split("/");
 				String bookingId = tokens[tokens.length - 1];
@@ -286,11 +294,12 @@ public class ParserUI extends JFrame implements WindowStateListener {
 					Logger.err("Cannot move e-mail to another folder");
 				}
 			}
+		} catch (BookingException e) {
+			Logger.err(e.getMessage());
 		}
 
 		btnPost.setEnabled(true);
 		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-
 	}
 
 	private void refreshList() {

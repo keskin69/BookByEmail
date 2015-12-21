@@ -8,10 +8,13 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import io.swagger.client.ApiException;
+import io.swagger.client.model.Booking;
 import io.swagger.client.model.Customer;
 import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
 import yellowzebra.booking.CreateBooking;
+import yellowzebra.ui.ParserUI;
+import yellowzebra.util.BookingException;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
@@ -65,7 +68,7 @@ public class Expedia extends AParser {
 		}
 		participants.setNumbers(peopleList);
 		participants.setDetails(null);
-		booking.setParticipants(participants);
+		mybooking.booking.setParticipants(participants);
 
 		// Setting customer
 		Customer cus = new Customer();
@@ -81,7 +84,7 @@ public class Expedia extends AParser {
 		cus.setFirstName(token[0].trim());
 		cus.setLastName(token[1].trim());
 
-		booking.setCustomer(cus);
+		mybooking.booking.setCustomer(cus);
 
 		// date
 		skipAfter("Valid Days:");
@@ -91,6 +94,7 @@ public class Expedia extends AParser {
 		Date date = null;
 		try {
 			date = EXPEDIA_DATE.parse(token[0]);
+			mybooking.tourDate = date;
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -101,7 +105,7 @@ public class Expedia extends AParser {
 		line = getLine();
 		token = split(line, "-");
 		String product = token[0];
-		booking.setProductName(product);
+		mybooking.booking.setProductName(product);
 
 		// time
 		token = split(token[1], " ");
@@ -112,18 +116,20 @@ public class Expedia extends AParser {
 		}
 
 		time += ":00";
-		setProduct(product, date, time);
+		mybooking.tourTime = time;
 
 		skipAfter("Voucher #:");
 		line = getLine();
 		token = split(line, "Itin");
-		booking.voucherNumber = token[0];
-		booking.setTitle(booking.agent + "-" + booking.voucherNumber);
+		mybooking.voucherNumber = token[0];
+		mybooking.booking.setTitle(mybooking.agent + "-" + mybooking.voucherNumber);
 
-		return booking;
+		return mybooking;
 	}
 
 	public static void main(String[] args) {
+		ParserUI.init();
+
 		String msg = null;
 		try {
 			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\expedia.txt");
@@ -132,11 +138,14 @@ public class Expedia extends AParser {
 		}
 
 		Expedia parser = new Expedia();
-		MyBooking booking = parser.parse(null, msg);
-		booking.dump();
+		MyBooking mybooking = parser.parse(null, msg);
+
 		try {
-			CreateBooking.postBooking(booking);
-		} catch (ApiException e) {
+			Booking finalBooking = mybooking.getBooking();
+			mybooking.dump();
+
+			CreateBooking.postBooking(finalBooking);
+		} catch (ApiException | BookingException e) {
 			Logger.err(e.getMessage());
 		}
 

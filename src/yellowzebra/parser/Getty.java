@@ -11,6 +11,7 @@ import io.swagger.client.model.Customer;
 import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
 import io.swagger.client.model.StreetAddress;
+import yellowzebra.ui.ParserUI;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
@@ -42,7 +43,8 @@ public class Getty extends AParser {
 
 		line = getLine();
 		String product = split(line, "\\(")[0];
-
+		mybooking.booking.setProductName(product);
+		
 		skipAfter("Date:");
 		line = getNextLine();
 		token = split(line, ",");
@@ -50,14 +52,14 @@ public class Getty extends AParser {
 		Date date = null;
 		try {
 			date = GETTY_DATE.parse(token[0]);
+			mybooking.tourDate = date;
 		} catch (ParseException e) {
 			Logger.err("Wrong date format: " + token[0]);
 			return null;
 		}
 
 		String time = split(token[1], " ")[0];
-
-		setProduct(product, date, time);
+		mybooking.tourTime = time;
 
 		// Participants
 		Participants participants = new Participants();
@@ -80,11 +82,11 @@ public class Getty extends AParser {
 
 		participants.setNumbers(peopleList);
 		participants.setDetails(null);
-		booking.setParticipants(participants);
+		mybooking.booking.setParticipants(participants);
 
 		// voucher
 		line = getLine();
-		booking.voucherNumber = line;
+		mybooking.voucherNumber = line;
 
 		// Customer
 		Customer customer = new Customer();
@@ -107,23 +109,25 @@ public class Getty extends AParser {
 		StreetAddress address = new StreetAddress();
 		address.setAddress1(str);
 		customer.setStreetAddress(address);
-		
+
 		customer.setEmailAddress(line);
 
 		line = getNextLine();
 		customer.setPhoneNumbers(ParserUtils.setPhone(line));
 
 		customer.setCustomFields(null);
-		booking.setCustomer(customer);
+		mybooking.booking.setCustomer(customer);
 
 		// Title
-		booking.setTitle(booking.agent + "-" + booking.voucherNumber);
+		mybooking.booking.setTitle(mybooking.agent + "-" + mybooking.voucherNumber);
 
-		return booking;
+		return mybooking;
 
 	}
 
 	public static void main(String[] args) {
+		ParserUI.init();
+
 		String msg = null;
 		try {
 			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\getty.html");

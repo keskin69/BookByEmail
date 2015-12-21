@@ -10,11 +10,11 @@ import javax.swing.JLabel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
-import io.swagger.client.ApiException;
+import io.swagger.client.model.Booking;
 import io.swagger.client.model.PeopleNumber;
 import io.swagger.client.model.PhoneNumber;
-import yellowzebra.booking.CreateBooking;
 import yellowzebra.parser.AParser;
+import yellowzebra.util.BookingException;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MailConfig;
 import yellowzebra.util.MyBooking;
@@ -23,7 +23,7 @@ public class ParserController implements Runnable {
 	private static MailTable tbl = null;
 	private static SpringPanel panel = null;
 	private static boolean isPaused = true;
-	private static MyBooking booking = null;
+	private static MyBooking myBooking = null;
 
 	public ParserController(MailTable tbl, SpringPanel panel) {
 		ParserController.tbl = tbl;
@@ -52,9 +52,8 @@ public class ParserController implements Runnable {
 		}
 	}
 
-	public static synchronized void postBooking() throws ApiException {
-		MyBooking booking = component2Booking();
-		CreateBooking.postBooking(booking);
+	public static Booking getBooking() throws BookingException {
+		return myBooking.getBooking();
 	}
 
 	public static synchronized void fillContent(String subject, String msg, String parser) {
@@ -73,19 +72,9 @@ public class ParserController implements Runnable {
 		}
 
 		if (p != null) {
-			booking = p.parse(subject, msg);
-			booking2Component(booking);
+			myBooking = p.parse(subject, msg);
+			booking2Component(myBooking);
 		}
-	}
-
-	private static MyBooking component2Booking() {
-		MyBooking finalBooking = booking;
-
-		finalBooking.getCustomer()
-				.setFirstName(booking.getCustomer().getFirstName() + " " + booking.getCustomer().getLastName());
-		finalBooking.getCustomer().setLastName(booking.agent + "-" + booking.voucherNumber);
-
-		return finalBooking;
 	}
 
 	public static void isPaused(boolean p) {
@@ -93,45 +82,45 @@ public class ParserController implements Runnable {
 	}
 
 	// Create the Swing components regarding the booking content
-	private static void booking2Component(MyBooking booking) {
+	private static void booking2Component(MyBooking mybooking) {
 		panel.reset();
 
 		JTextField txt = null;
 		String str = null;
 		JLabel lbl = null;
 
-		panel.addRow("Title", booking.getTitle());
-		panel.addRow("Tour Agent", booking.agent);
-		panel.addRow("Voucher Number(s)", booking.voucherNumber);
-		panel.addRow("Tour Name", booking.getProductName());
-		panel.addRow("Booking Time", booking.startTimeNote);
+		panel.addRow("Title", mybooking.booking.getTitle());
+		panel.addRow("Tour Agent", mybooking.agent);
+		panel.addRow("Voucher Number(s)", mybooking.voucherNumber);
+		panel.addRow("Tour Name", mybooking.booking.getProductName());
+		panel.addRow("Booking Time", mybooking.getTourDateTime());
 		panel.addRow("Participant Information", null);
 
-		for (PeopleNumber n : booking.getParticipants().getNumbers()) {
+		for (PeopleNumber n : mybooking.booking.getParticipants().getNumbers()) {
 			lbl = new JLabel(n.getPeopleCategoryId().toString().substring(1));
 			txt = new JTextField(n.getNumber().toString());
 			panel.addRow(lbl, txt);
 		}
 
 		panel.addRow("Customer Information", null);
-		panel.addRow("Name", booking.getCustomer().getFirstName());
-		panel.addRow("Last Name", booking.getCustomer().getLastName());
+		panel.addRow("Name", mybooking.booking.getCustomer().getFirstName());
+		panel.addRow("Last Name", mybooking.booking.getCustomer().getLastName());
 
-		if (booking.getCustomer().getStreetAddress() != null) {
+		if (mybooking.booking.getCustomer().getStreetAddress() != null) {
 			lbl = new JLabel("Address");
-			JTextArea txa = new JTextArea(booking.getCustomer().getStreetAddress().getAddress1());
+			JTextArea txa = new JTextArea(mybooking.booking.getCustomer().getStreetAddress().getAddress1());
 			panel.addRow(lbl, txa);
 		}
 
-		panel.addRow("E-Mail", booking.getCustomer().getEmailAddress());
+		panel.addRow("E-Mail", mybooking.booking.getCustomer().getEmailAddress());
 
-		List<PhoneNumber> list = booking.getCustomer().getPhoneNumbers();
+		List<PhoneNumber> list = mybooking.booking.getCustomer().getPhoneNumbers();
 		if (list != null) {
 			panel.addRow("Phone Number", list.get(0).getNumber());
 		}
 
 		// details
-		str = booking.details;
+		str = mybooking.details;
 		if (str != null) {
 			str = str.replaceAll(String.valueOf((char) 160), " ").trim();
 			if (str.length() > 0) {

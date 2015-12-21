@@ -10,6 +10,7 @@ import java.util.Date;
 import io.swagger.client.model.Customer;
 import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
+import yellowzebra.ui.ParserUI;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
@@ -38,12 +39,15 @@ public class Isango extends AParser {
 		trimBody(msg);
 
 		String product = getLine();
+		mybooking.booking.setProductName(product);
+
 		skipAfter("Start date of travel\n");
 		line = getLine();
 
 		Date date = null;
 		try {
 			date = ISAGO_DATE.parse(line);
+			mybooking.tourDate = date;
 		} catch (ParseException e) {
 			Logger.err("Wrong date format " + line);
 		}
@@ -52,8 +56,7 @@ public class Isango extends AParser {
 		line = getLine();
 		token = split(line, " ");
 		String time = token[0].substring(0, 2) + ":" + token[0].substring(2, 4);
-
-		setProduct(product, date, time);
+		mybooking.tourTime = time;
 
 		// Customer
 		Customer customer = new Customer();
@@ -72,7 +75,7 @@ public class Isango extends AParser {
 		customer.setPhoneNumbers(ParserUtils.setPhone(line));
 		customer.setCustomFields(null);
 
-		booking.setCustomer(customer);
+		mybooking.booking.setCustomer(customer);
 
 		// Participants
 		Participants participants = new Participants();
@@ -97,21 +100,23 @@ public class Isango extends AParser {
 
 		participants.setNumbers(peopleList);
 		participants.setDetails(null);
-		booking.setParticipants(participants);
+		mybooking.booking.setParticipants(participants);
 
 		skipAfter("Special Request\n");
 		int idx = content.indexOf("End customer Total price:");
-		booking.details = content.substring(0, idx).trim();
+		mybooking.details = content.substring(0, idx).trim();
 
 		// Voucher
 		token = split(subject, " ");
-		booking.voucherNumber = token[token.length - 1];
-		booking.setTitle(booking.agent + "-" + booking.voucherNumber);
+		mybooking.voucherNumber = token[token.length - 1];
+		mybooking.booking.setTitle(mybooking.agent + "-" + mybooking.voucherNumber);
 
-		return booking;
+		return mybooking;
 	}
 
 	public static void main(String[] args) {
+		ParserUI.init();
+
 		String msg = null;
 		try {
 			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\isango.html");

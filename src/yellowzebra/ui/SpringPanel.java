@@ -9,8 +9,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
-
-import yellowzebra.util.MailConfig;
+import javax.swing.border.LineBorder;
 
 public class SpringPanel extends JPanel {
 	/**
@@ -64,7 +63,7 @@ public class SpringPanel extends JPanel {
 		}
 
 		if (comp2 instanceof JTextArea) {
-			comp2.setBorder(MailConfig.LineBorder);
+			comp2.setBorder(new LineBorder(Color.gray, 1, true));
 		}
 
 		layout.putConstraint(SpringLayout.NORTH, comp1, 10 + row, SpringLayout.NORTH, this);

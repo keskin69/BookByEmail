@@ -18,7 +18,8 @@ public abstract class AParser implements IParser {
 	}
 
 	public boolean isApplicable(String subject, String from) {
-		if (subject.startsWith(subjectReg) && from.equals(fromReg)) {
+		if (subject.toUpperCase().startsWith(subjectReg.toUpperCase())
+				&& from.toUpperCase().equals(fromReg.toUpperCase())) {
 			return true;
 		}
 

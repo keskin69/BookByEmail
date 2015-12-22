@@ -96,6 +96,7 @@ public class MyBooking {
 			}
 		}
 
+		System.out.println("Pickup:\n" + pickup);
 		System.out.println("Details:\n" + details);
 	}
 }

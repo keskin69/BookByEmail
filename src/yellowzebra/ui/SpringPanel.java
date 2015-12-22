@@ -14,16 +14,18 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.border.LineBorder;
 
+import yellowzebra.util.Logger;
+
 public class SpringPanel extends JPanel {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -5022909574876820687L;
 	public SpringLayout layout = null;
-	private static int HEIGHT = 22;
+	private static int HEIGHT = 23;
 	private int row = 0;
 	private String productName = null;
-	
+
 	public SpringPanel() {
 		layout = new SpringLayout();
 		setLayout(layout);
@@ -42,11 +44,16 @@ public class SpringPanel extends JPanel {
 			addRow("Tour Name", choice);
 			productName = choice;
 		} else {
-			addRow(lbl, combo);
-			combo.addActionListener (new ActionListener () {
-			    public void actionPerformed(ActionEvent e) {
-			        productName = (String) combo.getSelectedItem();
-			    }
+			addRow(lbl, null);
+			row -= 10;
+			addRow(combo, null);
+			row += 10;
+
+			Logger.err("Product " + choice + " cannot be found in the available tour list of Bookeo");
+			combo.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					productName = (String) combo.getSelectedItem();
+				}
 			});
 		}
 	}
@@ -78,11 +85,6 @@ public class SpringPanel extends JPanel {
 	}
 
 	public void addRow(JComponent comp1, JComponent comp2) {
-		if (comp2 == null) {
-			row += HEIGHT / 2;
-			((JLabel) comp1).setForeground(Color.DARK_GRAY);
-		}
-
 		if (comp1 instanceof JLabel) {
 			((JLabel) comp1).setText(((JLabel) comp1).getText() + ":");
 			comp1.setForeground(Color.DARK_GRAY);
@@ -100,7 +102,7 @@ public class SpringPanel extends JPanel {
 			Dimension d = comp2.getPreferredSize();
 
 			if (comp2 instanceof JTextField) {
-				comp2.setPreferredSize(new Dimension((int) (d.getWidth() * 1.08), (int) d.getHeight()));
+				comp2.setPreferredSize(new Dimension((int) (d.getWidth() * 1.06), (int) d.getHeight()));
 			}
 
 			layout.putConstraint(SpringLayout.NORTH, comp2, 5 + row, SpringLayout.NORTH, this);

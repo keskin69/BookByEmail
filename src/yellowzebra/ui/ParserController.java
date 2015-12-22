@@ -19,6 +19,7 @@ import yellowzebra.util.BookingException;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MailConfig;
 import yellowzebra.util.MyBooking;
+import yellowzebra.util.ParserFactory;
 
 public class ParserController implements Runnable {
 	private static MailTable tbl = null;
@@ -32,7 +33,7 @@ public class ParserController implements Runnable {
 		ParserController.panel = panel;
 	}
 
-	public static synchronized void refreshMailList() {
+	public static void refreshMailList() {
 		tbl.clearTable();
 
 		ArrayList<Entry<String, Message>> list = null;
@@ -65,24 +66,11 @@ public class ParserController implements Runnable {
 		return booking;
 	}
 
-	public static synchronized void fillContent(String subject, String msg, String parser) {
-		Class<?> c;
-		AParser p = null;
-		try {
-			c = Class.forName(parser);
-			p = (AParser) c.newInstance();
-
-		} catch (ClassNotFoundException e) {
-			Logger.exception(e);
-		} catch (InstantiationException e) {
-			Logger.exception(e);
-		} catch (IllegalAccessException e) {
-			Logger.exception(e);
-		}
-
-		if (p != null) {
-			currentFolder = p.folder;
-			myBooking = p.parse(subject, msg);
+	public static void fillContent(String subject, String msg, String parserName) throws Exception {
+		AParser parser = ParserFactory.getInstance().getParser(parserName);
+		if (parser != null) {
+			currentFolder = parser.folder;
+			myBooking = parser.parse(subject, msg);
 			booking2Component(myBooking);
 		}
 	}
@@ -93,7 +81,6 @@ public class ParserController implements Runnable {
 			MailReader.moveMail(msg, currentFolder);
 			tbl.removeSelected();
 		} catch (Exception e1) {
-			// TODO Auto-generated catch block
 			Logger.err("Cannot move e-mail to another folder");
 		}
 	}
@@ -138,13 +125,25 @@ public class ParserController implements Runnable {
 
 		List<PhoneNumber> list = mybooking.booking.getCustomer().getPhoneNumbers();
 		if (list != null) {
-			panel.addRow("Phone Number", list.get(0).getNumber());
+			if (list.size() > 0) {
+				panel.addRow("Phone Number", list.get(0).getNumber());
+			}
 		}
 
 		// details
-		str = mybooking.details;
+		if (mybooking.pickup != null) {
+			mybooking.pickup = "Pickup: " + mybooking.pickup.replaceAll(String.valueOf((char) 160), " ").trim();
+			str = mybooking.pickup + "\n";
+		}
+
+		if (mybooking.details != null) {
+			if (!mybooking.details.equals("")) {
+				mybooking.details = "Details: " + mybooking.details.replaceAll(String.valueOf((char) 160), " ").trim();
+				str += mybooking.details;
+			}
+		}
+
 		if (str != null) {
-			str = str.replaceAll(String.valueOf((char) 160), " ").trim();
 			if (str.length() > 0) {
 				lbl = new JLabel("Details/Notes");
 				JTextArea txa = new JTextArea(str);

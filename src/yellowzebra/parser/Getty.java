@@ -36,7 +36,7 @@ public class Getty extends AParser {
 		getLine();
 	}
 
-	public MyBooking parse(String subject, String msg) {
+	public MyBooking parse(String subject, String msg) throws Exception {
 		String line = null;
 		String token[] = null;
 
@@ -138,7 +138,14 @@ public class Getty extends AParser {
 		}
 
 		Getty parser = new Getty();
-		MyBooking booking = parser.parse("", msg);
-		booking.dump();
+		MyBooking booking;
+		try {
+			booking = parser.parse("", msg);
+			booking.dump();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }

@@ -33,7 +33,7 @@ public class Isango extends AParser {
 		skipAfter("Product Name\n");
 	}
 
-	public MyBooking parse(String subject, String msg) {
+	public MyBooking parse(String subject, String msg) throws Exception {
 		String line = null;
 		String token[] = null;
 
@@ -127,7 +127,14 @@ public class Isango extends AParser {
 		}
 
 		Isango parser = new Isango();
-		MyBooking booking = parser.parse("Booking Confirmation - ISA357761", msg);
-		booking.dump();
+		MyBooking booking;
+		try {
+			booking = parser.parse("Booking Confirmation - ISA357761", msg);
+			booking.dump();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }

@@ -37,6 +37,7 @@ import io.swagger.client.ApiException;
 import io.swagger.client.Configuration;
 import io.swagger.client.model.Booking;
 import yellowzebra.booking.CreateBooking;
+import yellowzebra.booking.ProductTools;
 import yellowzebra.util.BookingException;
 import yellowzebra.util.ConfigReader;
 import yellowzebra.util.Logger;
@@ -48,7 +49,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	 * 
 	 */
 	private static final long serialVersionUID = 1022086231912876450L;
-	private static JButton btnRefresh = null;
+	public JButton btnRefresh = null;
 	private static MailTable tblMail = null;
 	private static SpringPanel pnlContent = null;
 	private static HTMLPanel txtMail;
@@ -71,24 +72,28 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	public void postUI() {
 		Logger.label = lblStatus;
 		setIcon("blue_email.png");
+		//this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
 
 		// init controller thread
 		ParserController controller = new ParserController(tblMail, pnlContent);
 		Thread t = new Thread(controller);
 		t.start();
+
+		// init product names
+		ProductTools.getInstance();
 	}
 
 	public static void init() {
 		ConfigReader.init("config.properties");
 
-		// init logger
-		Logger.init();
-
 		// init Bookeo API
 		String apiKey = ConfigReader.getInstance().getProperty("api_key");
 		String secretKey = ConfigReader.getInstance().getProperty("secret_key");
 		Configuration.setKey(apiKey, secretKey);
+
+		// init logger
+		Logger.init();
 	}
 
 	/**
@@ -127,7 +132,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		JPanel pnlTop = new JPanel();
 		contentPane.add(pnlTop, BorderLayout.CENTER);
 		GridBagLayout gbl_pnlTop = new GridBagLayout();
-		gbl_pnlTop.columnWeights = new double[] { 1.0, 1.9 };
+		gbl_pnlTop.columnWeights = new double[] { 1.0, 2.5 };
 		gbl_pnlTop.rowWeights = new double[] { 1.3, 1.0 };
 		pnlTop.setLayout(gbl_pnlTop);
 
@@ -241,24 +246,30 @@ public class ParserUI extends JFrame implements WindowStateListener {
 
 	private void parseMail() {
 		if (tblMail.getSelectedRow() >= 0) {
-			lblStatus.setText("Parsing selected e-mail to generate booking information");
-			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+			Logger.log("Parsing selected e-mail to generate booking information");
+			setCursor(new Cursor(Cursor.WAIT_CURSOR));
+
 			String subject = (String) tblMail.getColumn(1);
 			String parser = (String) tblMail.getColumn(3);
-			
+
 			Message msg = (Message) tblMail.getColumn(4);
 			txtMail.setContent(msg);
-			
-			if (txtMail.getContentType().equals("text/plain")) {
-				ParserController.fillContent(subject, txtMail.getText(), parser);
-			} else {
-				String con = ParserUtils.html2Text(txtMail.getText());
-				ParserController.fillContent(subject, con, parser);
-			}
 
-			lblStatus.setText("Ready");
-			this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			try {
+				if (txtMail.getContentType().equals("text/plain")) {
+					ParserController.fillContent(subject, txtMail.getText(), parser);
+				} else {
+					String con = ParserUtils.html2Text(txtMail.getText());
+					ParserController.fillContent(subject, con, parser);
+				}
+			} catch (Exception e) {
+				Logger.err("Cannot parse this message properly");
+				e.printStackTrace();
+			}
 		}
+
+		setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+
 	}
 
 	private void postBooking() {

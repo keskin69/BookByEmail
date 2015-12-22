@@ -26,12 +26,10 @@ public class MailTable extends JTable {
 	public void removeSelected() {
 		model.removeRow(getSelectedRow());
 	}
-	
-	public Object getColumn(int col) {	
+
+	public Object getColumn(int col) {
 		return model.getValueAt(getSelectedRow(), col);
 	}
-	
-
 
 	public void clearTable() {
 		model.setRowCount(0);
@@ -53,6 +51,8 @@ public class MailTable extends JTable {
 				} else {
 					frm.setIcon("blue_email.png");
 				}
+
+				frm.btnRefresh.setText("Get Mails (" + model.getRowCount() + ")");
 			}
 		});
 
@@ -62,7 +62,7 @@ public class MailTable extends JTable {
 		removeColumn(getColumnModel().getColumn(3));
 		removeColumn(getColumnModel().getColumn(3));
 		getColumnModel().getColumn(0).setPreferredWidth(100);
-		getColumnModel().getColumn(1).setPreferredWidth(240);
+		getColumnModel().getColumn(1).setPreferredWidth(200);
 		getColumnModel().getColumn(2).setPreferredWidth(110);
 
 		setFillsViewportHeight(true);

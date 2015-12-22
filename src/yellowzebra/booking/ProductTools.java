@@ -34,8 +34,10 @@ public class ProductTools extends ArrayList<Product> {
 	public String[] getProducts() {
 		return productArray;
 	}
+	
 
 	private ProductTools() {
+		Logger.log("Reading Tour names from Bookeo");
 		SettingsApi settingsApi = new SettingsApi();
 		ProductList list = new ProductList();
 
@@ -49,6 +51,7 @@ public class ProductTools extends ArrayList<Product> {
 				this.addAll(list.getData());
 			}
 		} catch (ApiException e) {
+			Logger.err(e.getMessage());
 			Logger.exception(e);
 		}
 

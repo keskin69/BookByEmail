@@ -27,7 +27,7 @@ public class Expedia extends AParser {
 		fromReg = "Notifications@expediacustomer.com";
 		agent = "Expedia";
 		folder = "EXP";
-		
+
 		core();
 	}
 
@@ -39,7 +39,7 @@ public class Expedia extends AParser {
 		skipAfter("Booking");
 	}
 
-	public MyBooking parse(String subject, String msg) {
+	public MyBooking parse(String subject, String msg) throws Exception {
 		try {
 			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\expedia.txt");
 		} catch (IOException e1) {
@@ -139,15 +139,20 @@ public class Expedia extends AParser {
 		}
 
 		Expedia parser = new Expedia();
-		MyBooking mybooking = parser.parse(null, msg);
-
+		MyBooking mybooking;
 		try {
-			Booking finalBooking = mybooking.getBooking();
-			mybooking.dump();
+			mybooking = parser.parse(null, msg);
+			try {
+				Booking finalBooking = mybooking.getBooking();
+				mybooking.dump();
 
-			CreateBooking.postBooking(finalBooking);
-		} catch (ApiException | BookingException e) {
-			Logger.err(e.getMessage());
+				CreateBooking.postBooking(finalBooking);
+			} catch (ApiException | BookingException e) {
+				Logger.err(e.getMessage());
+			}
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 
 	}

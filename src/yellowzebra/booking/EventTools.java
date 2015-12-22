@@ -7,13 +7,10 @@ import io.swagger.client.ApiException;
 import io.swagger.client.api.AvailabilityApi;
 import io.swagger.client.model.Slot;
 import io.swagger.client.model.SlotList;
+import yellowzebra.util.Logger;
 import yellowzebra.util.MailConfig;
 
 public class EventTools {
-	public EventTools() {
-
-	}
-
 	public String getEventId(String productId, Date startTime, String hour) {
 		AvailabilityApi api = new AvailabilityApi();
 
@@ -30,8 +27,8 @@ public class EventTools {
 
 			pageNavigationToken = list.getInfo().getPageNavigationToken();
 		} catch (ApiException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger.err(e.getMessage());
+			Logger.exception(e);
 		}
 
 		for (Slot s : list.getData()) {

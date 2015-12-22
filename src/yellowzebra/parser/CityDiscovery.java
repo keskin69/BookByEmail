@@ -23,7 +23,7 @@ public class CityDiscovery extends AParser {
 		fromReg = "confirmation@city-discovery.com";
 		agent = "CityDiscover";
 		folder = "CD";
-		
+
 		core();
 	}
 
@@ -32,7 +32,7 @@ public class CityDiscovery extends AParser {
 		skipAfter("Customer details :");
 	}
 
-	public MyBooking parse(String subject, String msg) {
+	public MyBooking parse(String subject, String msg) throws Exception {
 		String line = null;
 		String token[] = null;
 
@@ -45,11 +45,19 @@ public class CityDiscovery extends AParser {
 		token = split(line, ":");
 		token = token[1].split(" ", 2);
 		cus.setFirstName(token[0].trim());
-		cus.setLastName(token[1].trim());
-
+		try {
+			cus.setLastName(token[1].trim());
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			cus.setLastName("");
+		}
+		
 		line = getLine(); // phone
 		token = split(line, ":");
-		cus.setPhoneNumbers(ParserUtils.setPhone(token[1]));
+		try {
+			cus.setPhoneNumbers(ParserUtils.setPhone(token[1]));
+		} catch (Exception ex) {
+			cus.setPhoneNumbers(null);
+		}
 
 		cus.setCustomFields(null);
 		mybooking.booking.setCustomer(cus);
@@ -57,13 +65,15 @@ public class CityDiscovery extends AParser {
 		// tour
 		skipAfter("Name of the Tour :");
 		line = getLine();
-		if (line.contains("--")) {
+		if (line.contains("- -")) {
+			token = line.split("- -", 2);
+		} else if (line.contains("--")) {
 			token = line.split("--", 2);
 		} else {
 			token = line.split(" ", 2);
 		}
 
-		String product = token[1];
+		String product = token[1].trim();
 		mybooking.booking.setProductName(product);
 
 		skipAfter("Date and time of the Tour :");
@@ -131,14 +141,18 @@ public class CityDiscovery extends AParser {
 		mybooking.booking.setParticipants(participants);
 
 		// others
-		skipAfter("Address of customer for pick up (if possible) :");
-		line = getNextLine();
-		mybooking.pickup = line;
+		skipAfter("Address of customer");
+		getLine();
+		int idx = content.indexOf("Customer Comment");
+		if (idx != -1) {
+			mybooking.pickup = content.substring(0, idx);
+		}
 
-		skipAfter("Customer Comment:");
-		line = getNextLine();
-		if (!line.startsWith("Arrival date")) {
-			mybooking.details = line;
+		skipAfter("Customer Comment");
+		getLine();
+		idx = content.indexOf("Arrival date");
+		if (idx != -1) {
+			mybooking.details = content.substring(0, idx);
 		}
 
 		mybooking.voucherNumber = split(subject, " ")[2];
@@ -160,7 +174,14 @@ public class CityDiscovery extends AParser {
 		}
 
 		CityDiscovery parser = new CityDiscovery();
-		MyBooking booking = parser.parse("Booking ref EVEL403406", msg);
-		booking.dump();
+		MyBooking booking;
+		try {
+			booking = parser.parse("Booking ref EVEL403406", msg);
+			booking.dump();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 }

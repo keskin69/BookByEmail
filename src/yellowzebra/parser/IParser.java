@@ -4,5 +4,5 @@ import yellowzebra.util.MyBooking;
 
 public interface IParser {
 	boolean isApplicable(String subject, String from);
-	MyBooking parse(String subject, String msg);
+	MyBooking parse(String subject, String msg) throws Exception;
 }

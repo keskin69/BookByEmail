@@ -2,7 +2,6 @@ package yellowzebra.ui;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map.Entry;
 
 import javax.mail.Address;
@@ -15,20 +14,20 @@ import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
 
-import yellowzebra.parser.AParser;
-import yellowzebra.util.ClassFinder;
 import yellowzebra.util.ConfigReader;
 import yellowzebra.util.Logger;
+import yellowzebra.util.ParserFactory;
 
 public class MailReader {
 	private static MailReader instance = null;
 	private static Store store = null;
 	private static ConfigReader props = null;
-	private static final List<Class<?>> classes = ClassFinder.find("yellowzebra.parser");
+	private static String inFolder = null;
 
 	public static MailReader getInstance() {
 		if (instance == null) {
 			instance = new MailReader();
+			inFolder = ConfigReader.getInstance().getProperty("inbox");
 		}
 
 		return instance;
@@ -71,19 +70,25 @@ public class MailReader {
 		}
 
 		if (store.isConnected()) {
-			Logger.log("Retriving e-mails");
-			Folder inbox = store.getFolder("Inbox");
-			inbox.open(Folder.READ_WRITE);
-
-			Message[] messages = inbox.getMessages();
+			Folder inbox = store.getFolder(inFolder);
+			inbox.open(Folder.READ_ONLY);
+			int number = ConfigReader.getInstance().getInt("number_of_mail");
+			
+			String from = null;
+			int n = inbox.getMessageCount();
+			if (number>n) {
+				number = n-1;
+			}
+			
+			Message[] messages = inbox.getMessages(n - number, n);
+			Logger.log("Scanning " + number + " recent e-mails out of " + (n-1));
 			for (Message message : messages) {
-				String from = null;
 				for (Address a : message.getFrom()) {
 					from = ((InternetAddress) a).getAddress();
 					break;
 				}
 
-				String parser = canParse(message.getSubject(), from);
+				String parser = ParserFactory.getInstance().isParsable(message.getSubject(), from);
 				if (parser != null) {
 					list.add(new SimpleEntry<String, Message>(parser, message));
 				}
@@ -91,31 +96,6 @@ public class MailReader {
 		}
 
 		return list;
-
-	}
-
-	private static String canParse(String subject, String from) {
-		for (Class<?> c : classes) {
-			if (c.getSuperclass() != null) {
-				if (c.getSuperclass().getName().endsWith("AParser")) {
-					try {
-						AParser parser = (AParser) c.newInstance();
-						if (parser.isApplicable(subject, from)) {
-							Logger.log("Parsing message with " + c.getName());
-							return c.getCanonicalName();
-						}
-					} catch (InstantiationException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IllegalAccessException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-
-		return null;
 	}
 
 	public static void moveMail(Message msg, String destFolder) throws Exception {
@@ -125,7 +105,7 @@ public class MailReader {
 			}
 
 			if (store.isConnected()) {
-				Folder inbox = store.getFolder("Inbox");
+				Folder inbox = store.getFolder(inFolder);
 				inbox.open(Folder.READ_WRITE);
 
 				Folder dest = store.getFolder(destFolder);

@@ -1,6 +1,7 @@
 package yellowzebra.ui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,7 +11,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.border.LineBorder;
 
@@ -60,10 +60,10 @@ public class SpringPanel extends JPanel {
 
 	public void addRow(String key, String value) {
 		JLabel lbl = new JLabel(key);
-		JTextField txt = null;
+		TaggedText txt = null;
 
 		if (value != null) {
-			txt = new JTextField(value);
+			txt = new TaggedText(key, value);
 		}
 
 		addRow(lbl, txt);
@@ -84,6 +84,19 @@ public class SpringPanel extends JPanel {
 		setPreferredSize(new Dimension(0, row + HEIGHT));
 	}
 
+	public String getValue(String tag) {
+		for (Component comp : this.getComponents()) {
+			if (comp instanceof TaggedText) {
+				TaggedText tComp = (TaggedText) comp;
+				if (tComp.tag.equals(tag)) {
+					return tComp.getText();
+				}
+			}
+		}
+
+		return null;
+	}
+
 	public void addRow(JComponent comp1, JComponent comp2) {
 		if (comp1 instanceof JLabel) {
 			((JLabel) comp1).setText(((JLabel) comp1).getText() + ":");
@@ -100,12 +113,15 @@ public class SpringPanel extends JPanel {
 
 		if (comp2 != null) {
 			Dimension d = comp2.getPreferredSize();
-
-			if (comp2 instanceof JTextField) {
+			int offset = 4;
+			
+			if (comp2 instanceof TaggedText) {
+				row += 5;
 				comp2.setPreferredSize(new Dimension((int) (d.getWidth() * 1.06), (int) d.getHeight()));
+				offset = 1;
 			}
 
-			layout.putConstraint(SpringLayout.NORTH, comp2, 5 + row, SpringLayout.NORTH, this);
+			layout.putConstraint(SpringLayout.NORTH, comp2, offset + row, SpringLayout.NORTH, this);
 			layout.putConstraint(SpringLayout.WEST, comp2, 5, SpringLayout.EAST, comp1);
 
 			add(comp2);

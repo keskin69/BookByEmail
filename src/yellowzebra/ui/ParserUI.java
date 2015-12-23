@@ -28,6 +28,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
@@ -134,7 +135,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		contentPane.add(pnlTop, BorderLayout.CENTER);
 		GridBagLayout gbl_pnlTop = new GridBagLayout();
 		gbl_pnlTop.columnWeights = new double[] { 1.0, 2.5 };
-		gbl_pnlTop.rowWeights = new double[] { 1.3, 1.0 };
+		gbl_pnlTop.rowWeights = new double[] { 1.4, 1.0 };
 		pnlTop.setLayout(gbl_pnlTop);
 
 		JPanel panel = new JPanel();
@@ -216,6 +217,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		pnlTop.add(scrMailContent, gbc_scrContent);
 
 		txtMail = new HTMLPanel();
+		scrMailContent.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		scrMailContent.setViewportView(txtMail);
 
 		JPanel pnlStatus = new JPanel();

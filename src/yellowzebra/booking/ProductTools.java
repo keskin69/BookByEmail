@@ -1,6 +1,5 @@
 package yellowzebra.booking;
 
-import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +12,6 @@ import io.swagger.client.model.Product.TypeEnum;
 import io.swagger.client.model.ProductList;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MailConfig;
-import yellowzebra.util.ParserUtils;
 
 public class ProductTools extends ArrayList<Product> {
 	/**
@@ -70,6 +68,7 @@ public class ProductTools extends ArrayList<Product> {
 		}
 
 		Arrays.sort(productArray);
+		Logger.log("Ready");
 	}
 
 	public String getProductId(String name) {

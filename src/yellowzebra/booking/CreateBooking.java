@@ -6,6 +6,7 @@ import java.util.Date;
 
 import io.swagger.client.ApiException;
 import io.swagger.client.Configuration;
+import io.swagger.client.JSON;
 import io.swagger.client.api.BookingsApi;
 import io.swagger.client.api.CustomersApi;
 import io.swagger.client.model.Booking;
@@ -82,11 +83,15 @@ public class CreateBooking {
 	}
 
 	public static void postBooking(Booking newBooking) throws ApiException {
-		BookingsApi bookingApi = new BookingsApi();
+		if (ConfigReader.getInstance().getProperty("post_enabled").toUpperCase().equals("YES")) {
+			BookingsApi bookingApi = new BookingsApi();
 
-		// update bookingApi String[] authNames = new String[] { "keyAuth",
-		// "secretKey" };
-		bookingApi.bookingsPost(newBooking, "", false, false, false, false);
+			// update bookingApi String[] authNames = new String[] { "keyAuth",
+			// "secretKey" };
+			bookingApi.bookingsPost(newBooking, "", false, false, false, false);
+		} else {
+			System.out.println(new JSON().serialize(newBooking));
+		}
 	}
 
 	public static void main(String[] args) {

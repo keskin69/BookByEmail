@@ -10,8 +10,6 @@ public abstract class AParser implements IParser {
 	protected String content;
 	public String folder = null;
 
-	public abstract void trimBody(String msg);
-
 	protected void core() {
 		mybooking = new MyBooking();
 		mybooking.agent = agent;

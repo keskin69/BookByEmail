@@ -23,42 +23,31 @@ public class Expedia extends AParser {
 	private static final DateFormat EXPEDIA_DATE = new SimpleDateFormat("yyyy/MM/dd");
 
 	public Expedia() {
-		subjectReg = "Expedia - Booking report";
-		fromReg = "Notifications@expediacustomer.com";
+		subjectReg = "Daily Booking Report";
+		fromReg = "notify@localexpertpartnercentral.com";
 		agent = "Expedia";
 		folder = "EXP";
 
 		core();
 	}
 
-	public void trimBody(String msg) {
-		content = msg;
-
-		// Main message body
-		skipAfter("BOOKING REPORT");
-		skipAfter("Booking");
-	}
 
 	public MyBooking parse(String subject, String msg) throws Exception {
-		try {
-			msg = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\expedia.txt");
-		} catch (IOException e1) {
-			Logger.exception(e1);
-		}
-
 		String line = null;
 		String token[] = null;
 
-		trimBody(msg);
+		content = msg;
+
+		// Main message body
+		skipAfter("Ticket Type:");
 
 		// set participants
 		Participants participants = new Participants();
 		ArrayList<PeopleNumber> peopleList = new ArrayList<PeopleNumber>();
 		PeopleNumber number = new PeopleNumber();
 
-		line = getNextLine();
-		line = strip(line, "-- ");
-		token = split(line, ",");
+		line = getLine();
+		token = split(line, " ");
 		for (String str : token) {
 			if (!str.equals("")) {
 				String t[] = split(str, " ");

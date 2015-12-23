@@ -59,7 +59,19 @@ public class ParserController implements Runnable {
 		Booking booking = null;
 
 		if (myBooking != null) {
+			// first set the date/time since it maybe changed
+			try {
+				String dateTime = panel.getValue("Booking Time");
+				String token[] = dateTime.split(" ");
+				myBooking.tourTime = token[1];
+				myBooking.tourDate = MailConfig.SHORTDATE.parse(token[0]);
+			} catch (Exception e) {
+				throw new BookingException("Please check \"Booking Time\" it should be in yyyy-mm-dd hh:mm format");
+			}
+			
+			// set the product name because it my be changed
 			myBooking.booking.setProductName(panel.getProductName());
+			
 			booking = myBooking.getBooking();
 		}
 
@@ -106,7 +118,6 @@ public class ParserController implements Runnable {
 		panel.addRow("Participant Information", null);
 
 		for (PeopleNumber n : mybooking.booking.getParticipants().getNumbers()) {
-			System.out.println(n.getPeopleCategoryId());
 			lbl = new JLabel(n.getPeopleCategoryId().toString().substring(1));
 			txt = new JTextField(n.getNumber().toString());
 			panel.addRow(lbl, txt);
@@ -149,6 +160,11 @@ public class ParserController implements Runnable {
 		if (str != null) {
 			if (str.length() > 0) {
 				lbl = new JLabel("Details/Notes");
+
+				if (str.endsWith("\n")) {
+					str = str.substring(0, str.length() - 1);
+				}
+
 				JTextArea txa = new JTextArea(str);
 				panel.addRow(lbl, txa);
 			}

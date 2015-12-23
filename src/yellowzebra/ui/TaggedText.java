@@ -12,10 +12,11 @@ public class TaggedText extends JTextField {
 	private static final long serialVersionUID = 5381636841677946788L;
 	String tag = null;
 
-	public TaggedText(String tag, boolean err) {
+	public TaggedText(String tag, String value) {
+		super(value);
 		this.tag = tag;
-		setError(err);
 	}
+	
 
 	public void setError(boolean err) {
 		if (err) {

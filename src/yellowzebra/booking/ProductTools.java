@@ -1,5 +1,6 @@
 package yellowzebra.booking;
 
+import java.io.File;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +13,7 @@ import io.swagger.client.model.Product.TypeEnum;
 import io.swagger.client.model.ProductList;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MailConfig;
+import yellowzebra.util.ParserUtils;
 
 public class ProductTools extends ArrayList<Product> {
 	/**
@@ -25,7 +27,13 @@ public class ProductTools extends ArrayList<Product> {
 	// Make it as a singletons
 	public static ProductTools getInstance() {
 		if (instance == null) {
-			instance = new ProductTools();
+			// String prodSer = System.getProperty("java.io.tmpdir") + "\\product.ser";
+			//if (new File(prodSer).exists()) {
+			//	instance = (ProductTools) ParserUtils.readObject(prodSer);
+			//} else {
+				instance = new ProductTools();
+			//	ParserUtils.writeObject(instance, prodSer);
+			//}
 		}
 
 		return instance;
@@ -34,7 +42,6 @@ public class ProductTools extends ArrayList<Product> {
 	public String[] getProducts() {
 		return productArray;
 	}
-	
 
 	private ProductTools() {
 		Logger.log("Reading Tour names from Bookeo");
@@ -61,7 +68,7 @@ public class ProductTools extends ArrayList<Product> {
 		for (Product p : this) {
 			productArray[i++] = p.getName();
 		}
-		
+
 		Arrays.sort(productArray);
 	}
 

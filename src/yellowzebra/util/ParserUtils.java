@@ -1,8 +1,13 @@
 package yellowzebra.util;
 
 import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,5 +67,41 @@ public class ParserUtils {
 		Logger.err("Unknown customer type" + in);
 
 		return null;
+	}
+
+	public static void writeObject(Object obj, String fileName)  {
+		try {
+			FileOutputStream fout = new FileOutputStream(fileName);
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(obj);
+			oos.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	public static Object readObject(String fileName) {
+		Object obj = null;
+		try {
+			FileInputStream fin = new FileInputStream(fileName);
+			ObjectInputStream ois = new ObjectInputStream(fin);
+			try {
+				obj = ois.readObject();
+				ois.close();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return obj;
 	}
 }

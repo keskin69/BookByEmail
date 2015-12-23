@@ -72,7 +72,8 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	public void postUI() {
 		Logger.label = lblStatus;
 		setIcon("blue_email.png");
-		//this.setExtendedState(this.getExtendedState() | JFrame.MAXIMIZED_BOTH);
+		// this.setExtendedState(this.getExtendedState() |
+		// JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
 
 		// init controller thread
@@ -260,7 +261,12 @@ public class ParserUI extends JFrame implements WindowStateListener {
 					ParserController.fillContent(subject, txtMail.getText(), parser);
 				} else {
 					String con = ParserUtils.html2Text(txtMail.getText());
-					ParserController.fillContent(subject, con, parser);
+
+					if (!con.equals("")) {
+						ParserController.fillContent(subject, con, parser);
+					} else {
+						Logger.err("Cannot read message content");
+					}
 				}
 			} catch (Exception e) {
 				Logger.err("Cannot parse this message properly");
@@ -268,6 +274,10 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			}
 		}
 
+		if (lblStatus.getForeground() == Color.BLACK) {
+			Logger.log("Ready");
+		}
+		
 		setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
 	}

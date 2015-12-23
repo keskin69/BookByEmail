@@ -47,7 +47,10 @@ public class ParserFactory {
 					try {
 						AParser parser = (AParser) c.newInstance();
 						parserArray.add(parser);
-					} catch (InstantiationException | IllegalAccessException e) {
+					} catch (InstantiationException e) {
+						Logger.exception(e);
+					} catch (IllegalAccessException e) {
+
 						Logger.exception(e);
 					}
 				}

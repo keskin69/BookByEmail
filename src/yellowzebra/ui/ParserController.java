@@ -95,7 +95,7 @@ public class ParserController implements Runnable {
 		panel.reset();
 
 		JTextField txt = null;
-		String str = null;
+		String str = "";
 		JLabel lbl = null;
 
 		panel.addRow("Title", mybooking.booking.getTitle());
@@ -106,6 +106,7 @@ public class ParserController implements Runnable {
 		panel.addRow("Participant Information", null);
 
 		for (PeopleNumber n : mybooking.booking.getParticipants().getNumbers()) {
+			System.out.println(n.getPeopleCategoryId());
 			lbl = new JLabel(n.getPeopleCategoryId().toString().substring(1));
 			txt = new JTextField(n.getNumber().toString());
 			panel.addRow(lbl, txt);
@@ -132,8 +133,10 @@ public class ParserController implements Runnable {
 
 		// details
 		if (mybooking.pickup != null) {
-			mybooking.pickup = "Pickup: " + mybooking.pickup.replaceAll(String.valueOf((char) 160), " ").trim();
-			str = mybooking.pickup + "\n";
+			if (!myBooking.pickup.equals("")) {
+				mybooking.pickup = "Pickup: " + mybooking.pickup.replaceAll(String.valueOf((char) 160), " ").trim();
+				str = mybooking.pickup + "\n";
+			}
 		}
 
 		if (mybooking.details != null) {

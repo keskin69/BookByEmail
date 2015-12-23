@@ -49,7 +49,7 @@ public class SpringPanel extends JPanel {
 			addRow(combo, null);
 			row += 10;
 
-			Logger.err("Product " + choice + " cannot be found in the available tour list of Bookeo");
+			Logger.err("Product \"" + choice + "\" cannot be found in the available tour list of Bookeo");
 			combo.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					productName = (String) combo.getSelectedItem();

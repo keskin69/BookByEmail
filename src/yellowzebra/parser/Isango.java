@@ -12,6 +12,7 @@ import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
 import yellowzebra.ui.ParserUI;
 import yellowzebra.util.Logger;
+import yellowzebra.util.MailConfig;
 import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
 
@@ -28,16 +29,18 @@ public class Isango extends AParser {
 	}
 
 	public void trimBody(String msg) {
-		content = msg;
-
-		skipAfter("Product Name\n");
 	}
 
 	public MyBooking parse(String subject, String msg) throws Exception {
+		content = msg;
+
 		String line = null;
 		String token[] = null;
 
-		trimBody(msg);
+		skipAfter("We have the received a booking with the following details. ");
+		line = getLine();
+		mybooking.voucherNumber = line;
+		skipAfter("Product Name\n");
 
 		String product = getLine();
 		mybooking.booking.setProductName(product);
@@ -53,10 +56,17 @@ public class Isango extends AParser {
 			Logger.err("Wrong date format " + line);
 		}
 
-		skipAfter("Start Time\n");
-		line = getLine();
+		skipAfter("Start Time");
+		line = getNextLine();
 		token = split(line, " ");
-		String time = token[0].substring(0, 2) + ":" + token[0].substring(2, 4);
+		String time = null;
+		try {
+			time = token[0].substring(0, 2) + ":" + token[0].substring(2, 4);
+			MailConfig.TIMEFORMAT.parse(time);
+		} catch (Exception ex) {
+			time = "hh:mm";
+			Logger.err("Cannot parse time field");
+		}
 		mybooking.tourTime = time;
 
 		// Customer
@@ -92,9 +102,12 @@ public class Isango extends AParser {
 		skipAfter("No of Child Passengers\n");
 		line = getLine();
 		try {
-			number.setNumber(Integer.parseInt(line));
-			number.setPeopleCategoryId("Cchildren");
-			peopleList.add(number);
+			if (Integer.parseInt(line) > 0) {
+				number.setNumber(Integer.parseInt(line));
+				number.setPeopleCategoryId("Cchildren");
+				peopleList.add(number);
+			}
+			
 		} catch (NumberFormatException e) {
 			// continue
 		}
@@ -107,9 +120,6 @@ public class Isango extends AParser {
 		int idx = content.indexOf("End customer Total price:");
 		mybooking.details = content.substring(0, idx).trim();
 
-		// Voucher
-		token = split(subject, " ");
-		mybooking.voucherNumber = token[token.length - 1];
 		mybooking.booking.setTitle(mybooking.agent + "-" + mybooking.voucherNumber);
 
 		return mybooking;
@@ -135,6 +145,6 @@ public class Isango extends AParser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 }

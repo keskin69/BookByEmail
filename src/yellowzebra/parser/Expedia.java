@@ -147,7 +147,9 @@ public class Expedia extends AParser {
 				mybooking.dump();
 
 				CreateBooking.postBooking(finalBooking);
-			} catch (ApiException | BookingException e) {
+			} catch (ApiException e) {
+				Logger.err(e.getMessage());
+			} catch (BookingException e) {
 				Logger.err(e.getMessage());
 			}
 		} catch (Exception e1) {

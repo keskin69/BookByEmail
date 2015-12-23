@@ -123,8 +123,7 @@ public class ParserController implements Runnable {
 			panel.addRow(lbl, txt);
 		}
 
-		panel.addRow("Customer Information", null);
-		panel.addRow("Name", mybooking.booking.getCustomer().getFirstName());
+		panel.addRow("Customer Name", mybooking.booking.getCustomer().getFirstName());
 		panel.addRow("Last Name", mybooking.booking.getCustomer().getLastName());
 
 		if (mybooking.booking.getCustomer().getStreetAddress() != null) {

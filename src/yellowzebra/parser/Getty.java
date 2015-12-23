@@ -12,6 +12,7 @@ import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
 import io.swagger.client.model.StreetAddress;
 import yellowzebra.ui.ParserUI;
+import yellowzebra.util.BookingException;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
@@ -30,22 +31,18 @@ public class Getty extends AParser {
 		core();
 	}
 
-	public void trimBody(String msg) {
-		content = msg;
-		skipAfter("Option:");
-		getLine();
-	}
-
 	public MyBooking parse(String subject, String msg) throws Exception {
 		String line = null;
 		String token[] = null;
 
-		trimBody(msg);
+		content = msg;
+		skipAfter("booked\n:");
+		getLine();
 
 		line = getLine();
 		String product = split(line, "\\(")[0];
 		mybooking.booking.setProductName(product);
-		
+
 		skipAfter("Date:");
 		line = getNextLine();
 		token = split(line, ",");
@@ -65,20 +62,13 @@ public class Getty extends AParser {
 		// Participants
 		Participants participants = new Participants();
 		ArrayList<PeopleNumber> peopleList = new ArrayList<PeopleNumber>();
-		PeopleNumber number = new PeopleNumber();
 		skipAfter("Number of participants:");
-		line = getNextLine();
-		token = split(line, " ");
-		number.setNumber(Integer.parseInt(token[0]));
-		number.setPeopleCategoryId("Cadults");
-		peopleList.add(number);
-
-		line = getNextLine();
-		if (!line.startsWith("Reference")) {
-			token = split(line, " ");
-			number.setNumber(Integer.parseInt(token[0]));
-			number.setPeopleCategoryId("Cchildren");
-			peopleList.add(number);
+		int idx = content.indexOf("Reference");
+		
+		try {
+		setParticipant(peopleList, content.substring(0, idx));
+		} catch (Exception ex) {
+			throw new BookingException("Cannot read participant information");
 		}
 
 		participants.setNumbers(peopleList);
@@ -86,7 +76,8 @@ public class Getty extends AParser {
 		mybooking.booking.setParticipants(participants);
 
 		// voucher
-		line = getLine();
+		skipAfter("Reference");
+		line = getNextLine();
 		mybooking.voucherNumber = line;
 
 		// Customer
@@ -113,8 +104,13 @@ public class Getty extends AParser {
 
 		customer.setEmailAddress(line);
 
-		line = getNextLine();
-		customer.setPhoneNumbers(ParserUtils.setPhone(line));
+		line = getLine();
+		token = split(line, ":");
+		try {
+			customer.setPhoneNumbers(ParserUtils.setPhone(token[1]));
+		} catch (Exception ex) {
+
+		}
 
 		customer.setCustomFields(null);
 		mybooking.booking.setCustomer(customer);
@@ -123,7 +119,28 @@ public class Getty extends AParser {
 		mybooking.booking.setTitle(mybooking.agent + "-" + mybooking.voucherNumber);
 
 		return mybooking;
+	}
 
+	private void setParticipant(ArrayList<PeopleNumber> peopleList, String str) throws Exception {
+		str = str.replaceAll("\n", " ");
+		PeopleNumber number = new PeopleNumber();
+		String token[] = split(str, "x");
+
+		for (int i=1; i<token.length; i++) {
+			int idx = token[i-1].lastIndexOf(" ");
+			int num;
+			if (idx == -1) {
+				num = Integer.parseInt(token[i-1]);
+			} else {
+				num = Integer.parseInt(token[i-1].substring(idx).trim());
+			}
+			number.setNumber(num);
+			
+			idx = token[i].indexOf(" ");
+			String cusType = ParserUtils.getCustomerType(token[i].substring(0, idx));
+			number.setPeopleCategoryId(cusType);
+			peopleList.add(number);
+		}
 	}
 
 	public static void main(String[] args) {
@@ -146,6 +163,6 @@ public class Getty extends AParser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 }

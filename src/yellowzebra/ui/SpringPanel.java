@@ -36,9 +36,15 @@ public class SpringPanel extends JPanel {
 	}
 
 	public void addCombo(String label, String choice, String[] products) {
+		choice = choice.trim();
 		JLabel lbl = new JLabel(label);
 		final JComboBox<String> combo = new JComboBox<String>(products);
-		combo.setSelectedItem(choice);
+		for (int i = 0; i < products.length; i++) {
+			if (products[i].toUpperCase().equals(choice.toUpperCase())) {
+				combo.setSelectedIndex(i);
+				break;
+			}
+		}
 
 		if (combo.getSelectedIndex() != 0) {
 			addRow("Tour Name", choice);
@@ -113,8 +119,8 @@ public class SpringPanel extends JPanel {
 
 		if (comp2 != null) {
 			Dimension d = comp2.getPreferredSize();
-			int offset = 4;
-			
+			int offset = 6;
+
 			if (comp2 instanceof TaggedText) {
 				row += 5;
 				comp2.setPreferredSize(new Dimension((int) (d.getWidth() * 1.06), (int) d.getHeight()));

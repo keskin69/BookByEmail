@@ -1,5 +1,6 @@
 package yellowzebra.ui;
 
+import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Multipart;
 import javax.mail.Part;
+import javax.swing.JFrame;
 import javax.swing.JTextPane;
 
 import yellowzebra.util.Logger;
@@ -42,7 +44,7 @@ public class HTMLPanel extends JTextPane {
 			txt = getText();
 		}
 
-		new ContentDialog(txt);
+		ContentDialog.getInstance().setContent(txt);
 	}
 
 	public void setContent(Message message) {
@@ -55,7 +57,7 @@ public class HTMLPanel extends JTextPane {
 				setText(message.getContent().toString());
 			} else if (message.getContentType().contains("TEXT/HTML")) {
 				setContentType("text/html");
-				setText(message.getContent().toString());
+				setText("<HTML>" + message.getContent().toString() + "</HTML>");
 			} else {
 				setContentType(message.getContentType());
 				setText(message.getContent().toString());
@@ -79,12 +81,29 @@ public class HTMLPanel extends JTextPane {
 			} else {
 				if (bodyPart.getContentType().contains("TEXT/HTML")) {
 					setContentType("text/html");
-					// setText(bodyPart.getContent().toString());
 					str += bodyPart.getContent();
 				}
 			}
 		}
 
 		setText("<HTML>" + str + "</HTML>");
+	}
+	
+	public static void main(String[] args) {
+		try {
+			String str = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\test.html");
+			JFrame frm = new JFrame();
+			frm.setLayout(new BorderLayout());
+			frm.setSize(500, 500);
+			HTMLPanel htmlView = new HTMLPanel();
+			frm.add(htmlView);
+			htmlView.setContentType("text/html");
+			htmlView.setText(str);
+			
+			frm.setVisible(true);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

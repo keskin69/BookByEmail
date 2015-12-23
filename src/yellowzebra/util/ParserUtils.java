@@ -56,20 +56,21 @@ public class ParserUtils {
 	public static String getCustomerType(String in) {
 		in = in.toUpperCase().trim();
 
-		if (in.startsWith("ADULTS")) {
+		if (in.startsWith("ADULT")) {
 			return "Cadults";
 		} else if (in.startsWith("CHILDREN")) {
 			return "Cchildren";
-		} else if (in.startsWith("INFANTS")) {
+		} else if (in.startsWith("INFANT")) {
 			return "Cinfants";
+		} else if (in.startsWith("STUDENT")) {
+			return "Cstudent";
+		} else {
+			return "Cadults";
 		}
 
-		Logger.err("Unknown customer type" + in);
-
-		return null;
 	}
 
-	public static void writeObject(Object obj, String fileName)  {
+	public static void writeObject(Object obj, String fileName) {
 		try {
 			FileOutputStream fout = new FileOutputStream(fileName);
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
@@ -82,7 +83,7 @@ public class ParserUtils {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public static Object readObject(String fileName) {

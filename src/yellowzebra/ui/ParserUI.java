@@ -57,6 +57,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	private static LinkLabel lblStatus = null;
 	private static JLabel lblBooking = null;
 	private static JButton btnPost = null;
+	private static JScrollPane scrMailContent = null;
 
 	public void setIcon(String res) {
 		BufferedImage myImg = null;
@@ -206,7 +207,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		pnlContent = new SpringPanel();
 		scrBooking.setViewportView(pnlContent);
 
-		JScrollPane scrMailContent = new JScrollPane();
+		scrMailContent = new JScrollPane();
 		scrMailContent.setBorder(new LineBorder(new Color(130, 135, 144), 1, true));
 		GridBagConstraints gbc_scrContent = new GridBagConstraints();
 		gbc_scrContent.gridwidth = 2;
@@ -218,6 +219,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 
 		txtMail = new HTMLPanel();
 		scrMailContent.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		scrMailContent.getVerticalScrollBar().setMaximum(100);
 		scrMailContent.setViewportView(txtMail);
 
 		JPanel pnlStatus = new JPanel();
@@ -256,8 +258,9 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			String parser = (String) tblMail.getColumn(3);
 
 			Message msg = (Message) tblMail.getColumn(4);
+			scrMailContent.getVerticalScrollBar().setValue(20);
 			txtMail.setContent(msg);
-
+			
 			try {
 				if (txtMail.getContentType().equals("text/plain")) {
 					ParserController.fillContent(subject, txtMail.getText(), parser);
@@ -271,7 +274,11 @@ public class ParserUI extends JFrame implements WindowStateListener {
 					}
 				}
 			} catch (Exception e) {
-				Logger.err("Cannot parse this message properly");
+				if (e instanceof BookingException) {
+					Logger.err(e.getMessage());
+				} else {
+					Logger.err("Cannot parse this message properly");
+				}
 				e.printStackTrace();
 			}
 		}
@@ -279,7 +286,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		if (lblStatus.getForeground() == Color.BLACK) {
 			Logger.log("Ready");
 		}
-		
+
 		setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 
 	}

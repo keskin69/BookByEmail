@@ -42,6 +42,7 @@ import yellowzebra.booking.ProductTools;
 import yellowzebra.util.BookingException;
 import yellowzebra.util.ConfigReader;
 import yellowzebra.util.Logger;
+import yellowzebra.util.ParserFactory;
 import yellowzebra.util.ParserUtils;
 
 public class ParserUI extends JFrame implements WindowStateListener {
@@ -61,7 +62,8 @@ public class ParserUI extends JFrame implements WindowStateListener {
 
 	public void setIcon(String res) {
 		BufferedImage myImg = null;
-		InputStream imgStream = getClass().getResourceAsStream("/resources/" + res);
+		InputStream imgStream = getClass()
+				.getResourceAsStream(ConfigReader.getInstance().getProperty("resource.location") + res);
 		try {
 			myImg = ImageIO.read(imgStream);
 		} catch (Exception e) {
@@ -82,9 +84,6 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		ParserController controller = new ParserController(tblMail, pnlContent);
 		Thread t = new Thread(controller);
 		t.start();
-
-		// init product names
-		ProductTools.getInstance();
 	}
 
 	public static void init() {
@@ -97,6 +96,9 @@ public class ParserUI extends JFrame implements WindowStateListener {
 
 		// init logger
 		Logger.init();
+
+		// init parsers
+		ParserFactory.getInstance();
 	}
 
 	/**
@@ -118,6 +120,8 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			}
 		});
 
+		// init product names
+		ProductTools.getInstance();
 	}
 
 	/**
@@ -255,14 +259,14 @@ public class ParserUI extends JFrame implements WindowStateListener {
 			setCursor(new Cursor(Cursor.WAIT_CURSOR));
 			// clean component panel
 			pnlContent.reset();
-			
+
 			String subject = (String) tblMail.getColumn(1);
 			String parser = (String) tblMail.getColumn(3);
 
 			Message msg = (Message) tblMail.getColumn(4);
 			scrMailContent.getVerticalScrollBar().setValue(20);
 			txtMail.setContent(msg);
-			
+
 			try {
 				if (txtMail.getContentType().equals("text/plain")) {
 					ParserController.fillContent(subject, txtMail.getText(), parser);
@@ -281,7 +285,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 				} else {
 					Logger.err("Cannot parse this message properly");
 				}
-				
+
 				e.printStackTrace();
 			}
 		}
@@ -317,7 +321,6 @@ public class ParserUI extends JFrame implements WindowStateListener {
 
 				// move processed e-mail
 				ParserController.moveMail();
-				pnlContent.removeAll();
 			}
 		} catch (BookingException e) {
 			Logger.err(e.getMessage());

@@ -3,10 +3,10 @@ package yellowzebra.util;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import yellowzebra.parser.AParser;
 
 public class ParserFactory {
-	private static final List<Class<?>> classes = ClassFinder.find("yellowzebra.parser");
 	private static ParserFactory instance = null;
 	private static ArrayList<AParser> parserArray = null;
 
@@ -40,17 +40,21 @@ public class ParserFactory {
 
 	private ParserFactory() {
 		parserArray = new ArrayList<AParser>();
-
+		System.out.println("Searching for available parsers");
+		
+		//List<Class<?>> classes = ClassFinder.find("yellowzebra");
+		List<Class<?>> classes = ClassFinder.getClassesForPackage("yellowzebra.parser");
+		
 		for (Class<?> c : classes) {
 			if (c.getSuperclass() != null) {
 				if (c.getSuperclass().getName().endsWith("AParser")) {
 					try {
 						AParser parser = (AParser) c.newInstance();
+						System.out.println("Parser for " + parser.getClass().getName() + " found.");
 						parserArray.add(parser);
 					} catch (InstantiationException e) {
 						Logger.exception(e);
 					} catch (IllegalAccessException e) {
-
 						Logger.exception(e);
 					}
 				}

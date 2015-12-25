@@ -1,47 +1,98 @@
 package yellowzebra.util;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class ClassFinder {
 
-	private static final char DOT = '.';
-
-	private static final char SLASH = '/';
-
-	private static final String CLASS_SUFFIX = ".class";
-
-	private static final String BAD_PACKAGE_ERROR = "Unable to get resources from path '%s'. Are you sure the package '%s' exists?";
-
-	public static List<Class<?>> find(String scannedPackage) {
-		String scannedPath = scannedPackage.replace(DOT, SLASH);
-		URL scannedUrl = Thread.currentThread().getContextClassLoader().getResource(scannedPath);
-		if (scannedUrl == null) {
-			throw new IllegalArgumentException(String.format(BAD_PACKAGE_ERROR, scannedPath, scannedPackage));
-		}
-		File scannedDir = new File(scannedUrl.getFile());
+	public static List<Class<?>> getClassesForPackage(String pkgname) {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
-		for (File file : scannedDir.listFiles()) {
-			classes.addAll(find(file, scannedPackage));
-		}
-		return classes;
-	}
 
-	private static List<Class<?>> find(File file, String scannedPackage) {
-		List<Class<?>> classes = new ArrayList<Class<?>>();
-		String resource = scannedPackage + DOT + file.getName();
-		if (file.isDirectory()) {
-			for (File child : file.listFiles()) {
-				classes.addAll(find(child, resource));
+		// Get a File object for the package
+		File directory = null;
+		String fullPath;
+		String relPath = pkgname.replace('.', '/');
+
+		// System.out.println("ClassDiscovery: Package: " + pkgname + " becomes
+		// Path:" + relPath);
+
+		URL resource = ClassLoader.getSystemClassLoader().getResource(relPath);
+
+		// System.out.println("ClassDiscovery: Resource = " + resource);
+		if (resource == null) {
+			throw new RuntimeException("No resource for " + relPath);
+		}
+		fullPath = resource.getFile();
+		// System.out.println("ClassDiscovery: FullPath = " + resource);
+
+		try {
+			directory = new File(resource.toURI());
+		} catch (URISyntaxException e) {
+			throw new RuntimeException(
+					pkgname + " (" + resource
+							+ ") does not appear to be a valid URL / URI.  Strange, since we got it from the system...",
+					e);
+		} catch (IllegalArgumentException e) {
+			directory = null;
+		}
+		// System.out.println("ClassDiscovery: Directory = " + directory);
+
+		if (directory != null && directory.exists()) {
+
+			// Get the list of the files contained in the package
+			String[] files = directory.list();
+			for (int i = 0; i < files.length; i++) {
+
+				// we are only interested in .class files
+				if (files[i].endsWith(".class")) {
+
+					// removes the .class extension
+					String className = pkgname + '.' + files[i].substring(0, files[i].length() - 6);
+
+					// System.out.println("ClassDiscovery: className = " +
+					// className);
+
+					try {
+						classes.add(Class.forName(className));
+					} catch (ClassNotFoundException e) {
+						throw new RuntimeException("ClassNotFoundException loading " + className);
+					}
+				}
 			}
-		} else if (resource.endsWith(CLASS_SUFFIX)) {
-			int endIndex = resource.length() - CLASS_SUFFIX.length();
-			String className = resource.substring(0, endIndex);
+		} else {
 			try {
-				classes.add(Class.forName(className));
-			} catch (ClassNotFoundException ignore) {
+				String jarPath = fullPath.replaceFirst("[.]jar[!].*", ".jar").replaceFirst("file:", "");
+				JarFile jarFile = new JarFile(jarPath);
+				Enumeration<JarEntry> entries = jarFile.entries();
+				while (entries.hasMoreElements()) {
+					JarEntry entry = entries.nextElement();
+					String entryName = entry.getName();
+					if (entryName.startsWith(relPath) && entryName.length() > (relPath.length() + "/".length())) {
+
+						// System.out.println("ClassDiscovery: JarEntry: " +
+						// entryName);
+						String className = entryName.replace('/', '.').replace('\\', '.').replace(".class", "");
+
+						// System.out.println("ClassDiscovery: className = " +
+						// className);
+						try {
+							classes.add(Class.forName(className));
+						} catch (ClassNotFoundException e) {
+							throw new RuntimeException("ClassNotFoundException loading " + className);
+						}
+					}
+				}
+
+				jarFile.close();
+			} catch (IOException e) {
+				throw new RuntimeException(pkgname + " (" + directory + ") does not appear to be a valid package", e);
 			}
 		}
 		return classes;

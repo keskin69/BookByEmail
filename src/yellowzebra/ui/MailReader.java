@@ -71,7 +71,7 @@ public class MailReader {
 
 		if (store.isConnected()) {
 			Folder inbox = store.getFolder(inFolder);
-			inbox.open(Folder.READ_ONLY);
+			inbox.open(Folder.READ_WRITE);
 			int number = ConfigReader.getInstance().getInt("number_of_mail");
 			
 			String from = null;

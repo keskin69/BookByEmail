@@ -253,7 +253,9 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		if (tblMail.getSelectedRow() >= 0) {
 			Logger.log("Parsing selected e-mail to generate booking information");
 			setCursor(new Cursor(Cursor.WAIT_CURSOR));
-
+			// clean component panel
+			pnlContent.reset();
+			
 			String subject = (String) tblMail.getColumn(1);
 			String parser = (String) tblMail.getColumn(3);
 
@@ -279,6 +281,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 				} else {
 					Logger.err("Cannot parse this message properly");
 				}
+				
 				e.printStackTrace();
 			}
 		}
@@ -288,7 +291,6 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		}
 
 		setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-
 	}
 
 	private void postBooking() {
@@ -315,6 +317,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 
 				// move processed e-mail
 				ParserController.moveMail();
+				pnlContent.removeAll();
 			}
 		} catch (BookingException e) {
 			Logger.err(e.getMessage());

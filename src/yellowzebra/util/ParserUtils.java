@@ -58,7 +58,7 @@ public class ParserUtils {
 
 		if (in.startsWith("ADULT")) {
 			return "Cadults";
-		} else if (in.startsWith("CHILDREN")) {
+		} else if (in.startsWith("CHILD")) {
 			return "Cchildren";
 		} else if (in.startsWith("INFANT")) {
 			return "Cinfants";

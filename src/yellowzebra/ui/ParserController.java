@@ -104,8 +104,6 @@ public class ParserController implements Runnable {
 	// Create the Swing components regarding the booking content inside the
 	// e-mail message
 	private static void booking2Component(MyBooking mybooking) {
-		panel.reset();
-
 		JTextField txt = null;
 		String str = "";
 		JLabel lbl = null;

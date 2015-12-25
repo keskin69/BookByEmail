@@ -50,7 +50,7 @@ public class CityDiscovery extends AParser {
 		} catch (ArrayIndexOutOfBoundsException ex) {
 			cus.setLastName("");
 		}
-		
+
 		line = getLine(); // phone
 		token = split(line, ":");
 		try {
@@ -118,6 +118,7 @@ public class CityDiscovery extends AParser {
 		number.setPeopleCategoryId("Cadults");
 		peopleList.add(number);
 
+		number = new PeopleNumber();
 		skipAfter("Number of children :");
 		line = getLine();
 		token = split(line, " ");
@@ -127,6 +128,7 @@ public class CityDiscovery extends AParser {
 			peopleList.add(number);
 		}
 
+		number = new PeopleNumber();
 		skipAfter("Number of infants :");
 		line = getLine();
 		token = split(line, " ");

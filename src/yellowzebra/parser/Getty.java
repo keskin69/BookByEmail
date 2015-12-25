@@ -64,9 +64,9 @@ public class Getty extends AParser {
 		ArrayList<PeopleNumber> peopleList = new ArrayList<PeopleNumber>();
 		skipAfter("Number of participants:");
 		int idx = content.indexOf("Reference");
-		
+
 		try {
-		setParticipant(peopleList, content.substring(0, idx));
+			setParticipant(peopleList, content.substring(0, idx));
 		} catch (Exception ex) {
 			throw new BookingException("Cannot read participant information");
 		}
@@ -96,7 +96,7 @@ public class Getty extends AParser {
 				break;
 			}
 
-			str += line;
+			str += line + " ";
 		}
 		StreetAddress address = new StreetAddress();
 		address.setAddress1(str);
@@ -123,19 +123,21 @@ public class Getty extends AParser {
 
 	private void setParticipant(ArrayList<PeopleNumber> peopleList, String str) throws Exception {
 		str = str.replaceAll("\n", " ");
-		PeopleNumber number = new PeopleNumber();
+		
 		String token[] = split(str, "x");
 
-		for (int i=1; i<token.length; i++) {
-			int idx = token[i-1].lastIndexOf(" ");
+		for (int i = 1; i < token.length; i++) {
+			int idx = token[i - 1].lastIndexOf(" ");
 			int num;
 			if (idx == -1) {
-				num = Integer.parseInt(token[i-1]);
+				num = Integer.parseInt(token[i - 1]);
 			} else {
-				num = Integer.parseInt(token[i-1].substring(idx).trim());
+				num = Integer.parseInt(token[i - 1].substring(idx).trim());
 			}
-			number.setNumber(num);
 			
+			PeopleNumber number = new PeopleNumber();
+			number.setNumber(num);
+
 			idx = token[i].indexOf(" ");
 			String cusType = ParserUtils.getCustomerType(token[i].substring(0, idx));
 			number.setPeopleCategoryId(cusType);

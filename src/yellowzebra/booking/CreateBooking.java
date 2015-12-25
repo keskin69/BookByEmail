@@ -20,17 +20,6 @@ import yellowzebra.util.MailConfig;
 
 public class CreateBooking {
 
-	private static Customer testCustomer(String name, String lastName, String eMail) {
-		Customer customer = new Customer();
-		customer.setFirstName(name);
-		customer.setLastName(lastName);
-		customer.setEmailAddress(eMail);
-		customer.setCustomFields(null);
-		customer.setPhoneNumbers(null);
-
-		return customer;
-	}
-
 	private static Booking testBooking(Customer customer, String product, Date date, String time) {
 		Booking booking = new Booking();
 
@@ -71,17 +60,6 @@ public class CreateBooking {
 		return booking;
 	}
 
-	public static void postCustomer(Customer newCustomer) {
-		CustomersApi customerApi = new CustomersApi();
-		try {
-			// update customerApi String[] authNames = new String[] { "keyAuth",
-			// "secretKey" };
-			customerApi.customersPost(newCustomer);
-		} catch (ApiException e) {
-			Logger.exception(e);
-		}
-	}
-
 	public static void postBooking(Booking newBooking) throws ApiException {
 		if (ConfigReader.getInstance().getProperty("post_enabled").toUpperCase().equals("YES")) {
 			BookingsApi bookingApi = new BookingsApi();
@@ -94,6 +72,28 @@ public class CreateBooking {
 		}
 	}
 
+	public static Customer newCustomer(String name, String lastName, String eMail) {
+		Customer customer = new Customer();
+		customer.setFirstName(name);
+		customer.setLastName(lastName);
+		customer.setEmailAddress(eMail);
+		customer.setCustomFields(null);
+		customer.setPhoneNumbers(null);
+
+		return customer;
+	}
+
+	public static void postCustomer(Customer newCustomer) {
+		CustomersApi customerApi = new CustomersApi();
+		try {
+			// update customerApi String[] authNames = new String[] { "keyAuth",
+			// "secretKey" };
+			customerApi.customersPost(newCustomer);
+		} catch (ApiException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void main(String[] args) {
 		Logger.init();
 
@@ -103,7 +103,7 @@ public class CreateBooking {
 		String secretKey = ConfigReader.getInstance().getProperty("secret_key");
 		Configuration.setKey(apiKey, secretKey);
 
-		Customer testCustomer = CreateBooking.testCustomer("Custo5", "Santa5", "santa@gmail.com");
+		Customer testCustomer = newCustomer("Custo5", "Santa5", "santa@gmail.com");
 		// test.postCustomer(testCustomer);
 		try {
 			Booking booking = null;

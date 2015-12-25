@@ -91,14 +91,15 @@ public class Isango extends AParser {
 		// Participants
 		Participants participants = new Participants();
 		ArrayList<PeopleNumber> peopleList = new ArrayList<PeopleNumber>();
-		PeopleNumber number = new PeopleNumber();
 
+		PeopleNumber number = new PeopleNumber();
 		skipAfter("No of Adult Passengers\n");
 		line = getLine();
 		number.setNumber(Integer.parseInt(line));
 		number.setPeopleCategoryId("Cadults");
 		peopleList.add(number);
 
+		number = new PeopleNumber();
 		skipAfter("No of Child Passengers\n");
 		line = getLine();
 		try {
@@ -107,7 +108,7 @@ public class Isango extends AParser {
 				number.setPeopleCategoryId("Cchildren");
 				peopleList.add(number);
 			}
-			
+
 		} catch (NumberFormatException e) {
 			// continue
 		}

@@ -20,7 +20,7 @@ import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
 
 public class Expedia extends AParser {
-	private static final DateFormat EXPEDIA_DATE = new SimpleDateFormat("yyyy/MM/dd");
+	private static final DateFormat EXPEDIA_DATE = new SimpleDateFormat("MMMM dd, yyyy");
 
 	public Expedia() {
 		subjectReg = "Daily Booking Report";
@@ -31,8 +31,11 @@ public class Expedia extends AParser {
 		core();
 	}
 
-
 	public MyBooking parse(String subject, String msg) throws Exception {
+		if (!subject.contains("(1)")) {
+			throw new BookingException("This message contains more than 1 booking. It should be parsed manually.");
+		}
+
 		String line = null;
 		String token[] = null;
 
@@ -44,18 +47,19 @@ public class Expedia extends AParser {
 		// set participants
 		Participants participants = new Participants();
 		ArrayList<PeopleNumber> peopleList = new ArrayList<PeopleNumber>();
-		PeopleNumber number = new PeopleNumber();
 
 		line = getLine();
-		token = split(line, " ");
+		token = split(line, ",");
 		for (String str : token) {
 			if (!str.equals("")) {
+				PeopleNumber number = new PeopleNumber();
 				String t[] = split(str, " ");
 				number.setNumber(Integer.parseInt(t[1]));
 				number.setPeopleCategoryId(ParserUtils.getCustomerType(t[0]));
 				peopleList.add(number);
 			}
 		}
+
 		participants.setNumbers(peopleList);
 		participants.setDetails(null);
 		mybooking.booking.setParticipants(participants);
@@ -77,13 +81,12 @@ public class Expedia extends AParser {
 		mybooking.booking.setCustomer(cus);
 
 		// date
-		skipAfter("Valid Days:");
+		skipAfter("Valid Day:");
 		line = getLine();
-		token = split(line, "-");
 
 		Date date = null;
 		try {
-			date = EXPEDIA_DATE.parse(token[0]);
+			date = EXPEDIA_DATE.parse(line);
 			mybooking.tourDate = date;
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
@@ -93,22 +96,47 @@ public class Expedia extends AParser {
 		// product
 		skipAfter("Item:");
 		line = getLine();
-		token = split(line, "-");
+		token = split(line, "/");
 		String product = token[0];
 		mybooking.booking.setProductName(product);
 
 		// time
-		token = split(token[1], " ");
-		String time = token[0];
+		try {
+			boolean isAM = true;
 
-		if (token[1].equals("PM")) {
-			time = String.valueOf(12 + new Integer(time).intValue());
+			int idx = line.indexOf(" AM ");
+			if (idx == -1) {
+				isAM = false;
+				idx = line.indexOf(" PM ");
+			}
+
+			int i = idx - 1;
+			while (line.charAt(i) != ' ') {
+				i--;
+			}
+
+			String time = line.substring(i + 1, idx);
+
+			if (time.length() == 4) {
+				time = "0" + time;
+			} else if (time.length() == 2) {
+				time = time + ":00";
+			} else if (time.length() == 1) {
+				time = "0" + time + ":00";
+			}
+
+			if (!isAM) {
+				token = split(time, ":");
+				time = String.valueOf(12 + new Integer(token[0]).intValue()) + ":" + token[1];
+			}
+
+			mybooking.tourTime = time;
+		} catch (Exception ex) {
+			mybooking.tourTime = "hh:mm";
+			throw new BookingException("Cannot parse event time properly.");
 		}
 
-		time += ":00";
-		mybooking.tourTime = time;
-
-		skipAfter("Voucher #:");
+		skipAfter("Voucher:");
 		line = getLine();
 		token = split(line, "Itin");
 		mybooking.voucherNumber = token[0];

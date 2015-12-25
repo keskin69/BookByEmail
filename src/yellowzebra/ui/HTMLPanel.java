@@ -1,6 +1,7 @@
 package yellowzebra.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
@@ -25,7 +26,8 @@ public class HTMLPanel extends JTextPane {
 	public HTMLPanel() {
 		super();
 		setEditable(false);
-
+		this.setPreferredSize(new Dimension(200,120));
+		
 		this.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
 				if (evt.getClickCount() > 1) {
@@ -48,6 +50,8 @@ public class HTMLPanel extends JTextPane {
 	}
 
 	public void setContent(Message message) {
+		this.removeAll();
+		
 		try {
 			if (message.getContentType().contains("multipart")) {
 				Multipart multipart = (Multipart) message.getContent();
@@ -68,6 +72,8 @@ public class HTMLPanel extends JTextPane {
 		} catch (IOException e) {
 			Logger.exception(e);
 		}
+		
+		validate();
 	}
 
 	private void setContent(Multipart multipart) throws MessagingException, IOException {
@@ -88,7 +94,7 @@ public class HTMLPanel extends JTextPane {
 
 		setText("<HTML>" + str + "</HTML>");
 	}
-	
+
 	public static void main(String[] args) {
 		try {
 			String str = ParserUtils.readFile("C:\\Mustafa\\workspace\\YellowParser\\test.html");
@@ -99,7 +105,7 @@ public class HTMLPanel extends JTextPane {
 			frm.add(htmlView);
 			htmlView.setContentType("text/html");
 			htmlView.setText(str);
-			
+
 			frm.setVisible(true);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

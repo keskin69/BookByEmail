@@ -39,26 +39,28 @@ public class MailReader {
 
 		try {
 			store = session.getStore("imaps");
+			connect();
 		} catch (NoSuchProviderException e) {
 			Logger.err("Cannot create IMAP store");
 		}
-
-		connect();
 	}
 
 	private static void connect() {
+		String host = props.getProperty("mail.smtp.host");
+		String user = props.getProperty("user");
+
 		try {
 			// 1) make gmail less secure
 			// https://www.google.com/settings/security/lesssecureapps
 			// 2) make imap enabled
-			store.connect(props.getProperty("mail.smtp.host"), props.getProperty("user"),
-					props.getProperty("password"));
+			store.connect(host, user, props.getProperty("password"));
 
 			Logger.log("Connected to e-mail server");
 		} catch (NoSuchProviderException e) {
 			Logger.err("Cannot access e-mail server");
 		} catch (MessagingException e) {
-			Logger.err("Cannot read smtp.properties file");
+			e.printStackTrace();
+			Logger.err("Cannot authanticate " + user);
 		}
 	}
 
@@ -73,15 +75,15 @@ public class MailReader {
 			Folder inbox = store.getFolder(inFolder);
 			inbox.open(Folder.READ_WRITE);
 			int number = ConfigReader.getInstance().getInt("number_of_mail");
-			
+
 			String from = null;
 			int n = inbox.getMessageCount();
-			if (number>n) {
-				number = n-1;
+			if (number > n) {
+				number = n - 1;
 			}
-			
+
 			Message[] messages = inbox.getMessages(n - number, n);
-			Logger.log("Scanning " + number + " recent e-mails out of " + (n-1));
+			Logger.log("Scanning " + number + " recent e-mails out of " + (n - 1));
 			for (Message message : messages) {
 				for (Address a : message.getFrom()) {
 					from = ((InternetAddress) a).getAddress();

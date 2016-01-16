@@ -2,14 +2,15 @@ package yellowzebra.booking;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 
 import io.swagger.client.ApiException;
+import io.swagger.client.Configuration;
 import io.swagger.client.api.SettingsApi;
 import io.swagger.client.model.Product;
 import io.swagger.client.model.Product.TypeEnum;
 import io.swagger.client.model.ProductList;
+import yellowzebra.util.ConfigReader;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MailConfig;
 
@@ -25,13 +26,14 @@ public class ProductTools extends ArrayList<Product> {
 	// Make it as a singletons
 	public static ProductTools getInstance() {
 		if (instance == null) {
-			// String prodSer = System.getProperty("java.io.tmpdir") + "\\product.ser";
-			//if (new File(prodSer).exists()) {
-			//	instance = (ProductTools) ParserUtils.readObject(prodSer);
-			//} else {
-				instance = new ProductTools();
-			//	ParserUtils.writeObject(instance, prodSer);
-			//}
+			// String prodSer = System.getProperty("java.io.tmpdir") +
+			// "\\product.ser";
+			// if (new File(prodSer).exists()) {
+			// instance = (ProductTools) ParserUtils.readObject(prodSer);
+			// } else {
+			instance = new ProductTools();
+			// ParserUtils.writeObject(instance, prodSer);
+			// }
 		}
 
 		return instance;
@@ -51,7 +53,7 @@ public class ProductTools extends ArrayList<Product> {
 			String pageNavigationToken = list.getInfo().getPageNavigationToken();
 			this.addAll(list.getData());
 
-			for (int i = 2; i < list.getInfo().getTotalPages(); i++) {
+			for (int i = 2; i <= list.getInfo().getTotalPages(); i++) {
 				list = settingsApi.settingsProductsGet(null, 20, pageNavigationToken, i);
 				this.addAll(list.getData());
 			}
@@ -67,8 +69,7 @@ public class ProductTools extends ArrayList<Product> {
 			productArray[i++] = p.getName();
 		}
 
-		Arrays.sort(productArray);
-		Logger.log("Ready");
+		//Arrays.sort(productArray);
 	}
 
 	public String getProductId(String name) {
@@ -103,11 +104,24 @@ public class ProductTools extends ArrayList<Product> {
 
 	public void dump() {
 		for (Product p : this) {
-			System.out.println(p.getName() + ":" + p.getProductId() + ":" + p.getType());
+			System.out.println(p.getName() + ":" + p.getProductId() + ":" + p.getType() + ":" + p.getProductCode());
 		}
 	}
 
 	public static void main(String[] args) {
+		ConfigReader.init("config.properties");
+
+		// init Bookeo API
+		String apiKey = ConfigReader.getInstance().getProperty("api_key");
+		String secretKey = ConfigReader.getInstance().getProperty("secret_key");
+		Configuration.setKey(apiKey, secretKey);
+
+		Logger.init();
+		ProductTools.getInstance().dump();
+		System.out.println("Total:" + productArray.length);
+	}
+	
+	public void test1() {
 		String productId = ProductTools.getInstance().getProductId("Dinner Cruise with Live Music");
 		TypeEnum prodType = ProductTools.getInstance().getProductType("Dinner Cruise with Live Music");
 

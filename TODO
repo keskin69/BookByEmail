@@ -1,5 +1,10 @@
 test booking
 
+Use Customer Custom Fields
+- Original Booking
+- Notes
+- Booked Through
+
 Future:
 all editable booking
 wonder PDF Parser: attached pdf->download->convert to text->process

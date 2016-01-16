@@ -16,7 +16,7 @@ import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserUtils;
 
 public class CityDiscovery extends AParser {
-	private static final DateFormat CITY_DATE = new SimpleDateFormat("yyyy-mm-dd");
+	private static final DateFormat CITY_DATE = new SimpleDateFormat("yyyy-MM-dd");
 
 	public CityDiscovery() {
 		subjectReg = "Booking ref";

@@ -32,7 +32,16 @@ public class MyBooking {
 
 		booking.getCustomer()
 				.setFirstName(booking.getCustomer().getFirstName() + " " + booking.getCustomer().getLastName());
-		booking.getCustomer().setLastName(agent + "-" + voucherNumber);
+
+		String vStr = "";
+		try {
+			String v[] = voucherNumber.split(",");
+			vStr = v[0];
+		} catch (Exception ex) {
+			vStr = voucherNumber;
+		}
+
+		booking.getCustomer().setLastName(agent + "-" + vStr);
 
 		return booking;
 

@@ -337,7 +337,6 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		ParserController.refreshMailList();
 		btnRefresh.setEnabled(true);
 		this.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-		lblStatus.setText("Ready");
 	}
 
 	public void windowStateChanged(WindowEvent e) {

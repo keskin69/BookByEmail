@@ -26,15 +26,15 @@ public class EventTools {
 			list = api.availabilitySlotsGet(productId, startTime, endTime, 20, pageNavigationToken, 1);
 
 			pageNavigationToken = list.getInfo().getPageNavigationToken();
+
+			for (Slot s : list.getData()) {
+				if (MailConfig.TIMEFORMAT.format(s.getStartTime()).equals(hour)) {
+					return s.getEventId();
+				}
+			}
 		} catch (ApiException e) {
 			Logger.err(e.getMessage());
 			Logger.exception(e);
-		}
-
-		for (Slot s : list.getData()) {
-			if (MailConfig.TIMEFORMAT.format(s.getStartTime()).equals(hour)) {
-				return s.getEventId();
-			}
 		}
 
 		return null;

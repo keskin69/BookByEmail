@@ -84,7 +84,6 @@ public class Isango extends AParser {
 		skipAfter("Lead Passenger Phone\n");
 		line = getLine();
 		customer.setPhoneNumbers(ParserUtils.setPhone(line));
-		customer.setCustomFields(null);
 
 		mybooking.booking.setCustomer(customer);
 

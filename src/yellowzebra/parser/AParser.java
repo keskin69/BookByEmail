@@ -13,6 +13,7 @@ public abstract class AParser implements IParser {
 	protected void core() {
 		mybooking = new MyBooking();
 		mybooking.agent = agent;
+		mybooking.shortAgentName = folder;
 	}
 
 	public boolean isApplicable(String subject, String from) {

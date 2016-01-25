@@ -18,6 +18,7 @@ import yellowzebra.parser.AParser;
 import yellowzebra.util.BookingException;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MailConfig;
+import yellowzebra.util.MailReader;
 import yellowzebra.util.MyBooking;
 import yellowzebra.util.ParserFactory;
 
@@ -83,6 +84,9 @@ public class ParserController implements Runnable {
 		if (parser != null) {
 			currentFolder = parser.folder;
 			myBooking = parser.parse(subject, msg);
+			
+			// store original e-mail content
+			myBooking.originalContent = msg;
 			booking2Component(myBooking);
 		}
 	}

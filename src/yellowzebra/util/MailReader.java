@@ -1,4 +1,4 @@
-package yellowzebra.ui;
+package yellowzebra.util;
 
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
@@ -13,10 +13,6 @@ import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
 import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
-
-import yellowzebra.util.ConfigReader;
-import yellowzebra.util.Logger;
-import yellowzebra.util.ParserFactory;
 
 public class MailReader {
 	private static MailReader instance = null;
@@ -90,6 +86,8 @@ public class MailReader {
 					break;
 				}
 
+				// TODO String flg[] = message.getFlags().getUserFlags();
+			
 				String parser = ParserFactory.getInstance().isParsable(message.getSubject(), from);
 				if (parser != null) {
 					list.add(new SimpleEntry<String, Message>(parser, message));

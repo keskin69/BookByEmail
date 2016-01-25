@@ -112,7 +112,6 @@ public class Getty extends AParser {
 
 		}
 
-		customer.setCustomFields(null);
 		mybooking.booking.setCustomer(customer);
 
 		// Title

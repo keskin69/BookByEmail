@@ -33,7 +33,7 @@ public class Expedia extends AParser {
 
 	public MyBooking parse(String subject, String msg) throws Exception {
 		if (!subject.contains("(1)")) {
-			throw new BookingException("This message contains more than 1 booking. It should be parsed manually.");
+			throw new BookingException("This message contains more than 1 booking. It should be processed manually.");
 		}
 
 		String line = null;
@@ -72,7 +72,6 @@ public class Expedia extends AParser {
 		token = split(line, ",");
 		cus.setPhoneNumbers(ParserUtils.setPhone(token[1]));
 		cus.setEmailAddress(token[2]);
-		cus.setCustomFields(null);
 
 		token = token[0].split(" ", 2);
 		cus.setFirstName(token[0].trim());

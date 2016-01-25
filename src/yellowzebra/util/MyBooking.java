@@ -1,9 +1,11 @@
 package yellowzebra.util;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 
 import io.swagger.client.model.Booking;
+import io.swagger.client.model.CustomField;
 import io.swagger.client.model.Customer;
 import io.swagger.client.model.Product;
 import yellowzebra.booking.EventTools;
@@ -13,10 +15,12 @@ public class MyBooking {
 	public String voucherNumber = null;
 	public String details = null;
 	public String agent = null;
+	public String shortAgentName = null;
 	public String pickup = null;
 	public Date tourDate = null;
 	public String tourTime = null;
 	public Booking booking = null;
+	public String originalContent = null;
 
 	public MyBooking() {
 		booking = new Booking();
@@ -27,11 +31,13 @@ public class MyBooking {
 		booking.setBookingNumber(null);
 	}
 
+	// convert mybooking object to standard booking object
 	public Booking getBooking() throws BookingException {
 		setProduct();
 
-		booking.getCustomer()
-				.setFirstName(booking.getCustomer().getFirstName() + " " + booking.getCustomer().getLastName());
+		// first last - AgentShort
+		booking.getCustomer().setFirstName(booking.getCustomer().getFirstName() + " "
+				+ booking.getCustomer().getLastName() + " - " + shortAgentName);
 
 		String vStr = "";
 		try {
@@ -41,10 +47,19 @@ public class MyBooking {
 			vStr = voucherNumber;
 		}
 
-		booking.getCustomer().setLastName(agent + "-" + vStr);
+		booking.getCustomer().setLastName(vStr);
+
+		// Set customly created field for storing original text message
+		if (ConfigReader.getInstance().getProperty("storeOriginal").toUpperCase().equals("YES")) {
+			ArrayList<CustomField> customFields = new ArrayList<CustomField>();
+			CustomField origMsg = new CustomField();
+			origMsg.setName("Original Booking");
+			origMsg.setValue(originalContent);
+			customFields.add(origMsg);
+			booking.getCustomer().setCustomFields(customFields);
+		}
 
 		return booking;
-
 	}
 
 	private void setProduct() throws BookingException {

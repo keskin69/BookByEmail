@@ -77,7 +77,6 @@ public class CreateBooking {
 		customer.setFirstName(name);
 		customer.setLastName(lastName);
 		customer.setEmailAddress(eMail);
-		customer.setCustomFields(null);
 		customer.setPhoneNumbers(null);
 
 		return customer;

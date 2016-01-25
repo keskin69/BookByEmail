@@ -59,7 +59,6 @@ public class CityDiscovery extends AParser {
 			cus.setPhoneNumbers(null);
 		}
 
-		cus.setCustomFields(null);
 		mybooking.booking.setCustomer(cus);
 
 		// tour

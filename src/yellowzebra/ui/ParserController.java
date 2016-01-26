@@ -94,7 +94,8 @@ public class ParserController implements Runnable {
 	public static void moveMail() {
 		Message msg = (Message) tbl.getColumn(4);
 		try {
-			MailReader.moveMail(msg, currentFolder);
+			//MailReader.moveMail(msg, currentFolder);
+			MailReader.addLabel(msg, "In Bookeo");
 			tbl.removeSelected();
 		} catch (Exception e1) {
 			Logger.err("Cannot move e-mail to another folder");

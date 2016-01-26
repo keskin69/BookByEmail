@@ -11,15 +11,19 @@ import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.NoSuchProviderException;
 import javax.mail.Session;
-import javax.mail.Store;
 import javax.mail.internet.InternetAddress;
+
+import com.sun.mail.gimap.GmailFolder;
+import com.sun.mail.gimap.GmailMessage;
+import com.sun.mail.gimap.GmailStore;
 
 public class MailReader {
 	private static MailReader instance = null;
-	private static Store store = null;
+	private static GmailStore store = null;
 	private static ConfigReader props = null;
 	private static String inFolder = null;
-
+	private static GmailFolder inbox = null;
+	
 	public static MailReader getInstance() {
 		if (instance == null) {
 			instance = new MailReader();
@@ -34,7 +38,7 @@ public class MailReader {
 		Session session = Session.getDefaultInstance(props, null);
 
 		try {
-			store = session.getStore("imaps");
+			store = (GmailStore) session.getStore("gimap");
 			connect();
 		} catch (NoSuchProviderException e) {
 			Logger.err("Cannot create IMAP store");
@@ -68,7 +72,7 @@ public class MailReader {
 		}
 
 		if (store.isConnected()) {
-			Folder inbox = store.getFolder(inFolder);
+			 inbox = (GmailFolder) store.getFolder(inFolder);
 			inbox.open(Folder.READ_WRITE);
 			int number = ConfigReader.getInstance().getInt("number_of_mail");
 
@@ -86,16 +90,35 @@ public class MailReader {
 					break;
 				}
 
-				// TODO String flg[] = message.getFlags().getUserFlags();
-			
-				String parser = ParserFactory.getInstance().isParsable(message.getSubject(), from);
-				if (parser != null) {
-					list.add(new SimpleEntry<String, Message>(parser, message));
+				boolean skip = false;
+				GmailMessage gmsg = (GmailMessage) message;
+				String lbl[] = gmsg.getLabels();
+				for (String str : lbl) {
+					// don't display mails labeled as "Follow up"
+					if (str.equals("Follow up")) {
+						skip = true;
+					}
+					
+					if (str.equals("In Bookeo")) {
+						skip = true;
+					}
+				}
+
+				if (!skip) {
+					String parser = ParserFactory.getInstance().isParsable(message.getSubject(), from);
+					if (parser != null) {
+						list.add(new SimpleEntry<String, Message>(parser, message));
+					}
 				}
 			}
 		}
 
 		return list;
+	}
+
+	public static void addLabel(Message msg, String label) throws Exception {
+		msg.setFlag(Flags.Flag.SEEN, true);
+		inbox.setLabels(new Message[]{msg}, new String[]{label}, true);
 	}
 
 	public static void moveMail(Message msg, String destFolder) throws Exception {

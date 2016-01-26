@@ -128,7 +128,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	 * Create the frame.
 	 */
 	public ParserUI() {
-		setTitle("Yellow Zebra Booking Tool V1.0 - Jan 20");
+		setTitle("Yellow Zebra Booking Tool V1.0 - Jan 26");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(0, 0, 850, 650);
 		JPanel contentPane = new JPanel();

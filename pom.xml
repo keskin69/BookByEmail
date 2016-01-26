@@ -27,9 +27,9 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>javax.mail</groupId>
-			<artifactId>mail</artifactId>
-			<version>1.4.7</version>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>gimap</artifactId>
+			<version>1.5.5</version>
 		</dependency>
 		<dependency>
 			<groupId>de.sciss</groupId>

@@ -99,7 +99,7 @@ public class MailReader {
 						skip = true;
 					}
 					
-					if (str.equals("In Bookeo")) {
+					if (str.equals("In")) {
 						skip = true;
 					}
 				}

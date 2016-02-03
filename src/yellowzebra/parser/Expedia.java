@@ -12,7 +12,7 @@ import io.swagger.client.model.Booking;
 import io.swagger.client.model.Customer;
 import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
-import yellowzebra.booking.CreateBooking;
+
 import yellowzebra.ui.ParserUI;
 import yellowzebra.util.BookingException;
 import yellowzebra.util.Logger;
@@ -162,7 +162,7 @@ public class Expedia extends AParser {
 				Booking finalBooking = mybooking.getBooking();
 				mybooking.dump();
 
-				CreateBooking.postBooking(finalBooking);
+				yellowzebra.booking.CreateBooking.postBooking(finalBooking);
 			} catch (ApiException e) {
 				Logger.err(e.getMessage());
 			} catch (BookingException e) {

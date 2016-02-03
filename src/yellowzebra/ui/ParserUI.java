@@ -19,6 +19,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 
 import javax.imageio.ImageIO;
@@ -105,6 +108,14 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		FileWriter fw;
+		try {
+			fw = new FileWriter(new File("yellowparser.jar"));
+			fw.close();
+		} catch (IOException e1) {
+
+		}
+
 		WebLookAndFeel.install();
 		init();
 
@@ -128,7 +139,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	 * Create the frame.
 	 */
 	public ParserUI() {
-		setTitle("Yellow Zebra Booking Tool V1.0 - Jan 26");
+		setTitle("Yellow Zebra Booking Tool V1.0 - Feb 02");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(0, 0, 850, 650);
 		JPanel contentPane = new JPanel();

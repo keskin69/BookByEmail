@@ -1,6 +1,7 @@
 package yellowzebra.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -8,13 +9,33 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.RandomAccessFile;
 import java.io.StringReader;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
 import io.swagger.client.model.PhoneNumber;
 
 public class ParserUtils {
+	public static void secureDelete(File file) throws IOException {
+		if (file.exists()) {
+			long length = file.length();
+			SecureRandom random = new SecureRandom();
+			RandomAccessFile raf = new RandomAccessFile(file, "rws");
+			raf.seek(0);
+			raf.getFilePointer();
+			byte[] data = new byte[64];
+			int pos = 0;
+			while (pos < length) {
+				random.nextBytes(data);
+				raf.write(data);
+				pos += data.length;
+			}
+			raf.close();
+			file.delete();
+		}
+	}
 
 	public static String html2Text(String html) {
 		MyHtml2Text parser = new MyHtml2Text();

@@ -14,9 +14,11 @@ import io.swagger.client.model.Customer;
 import io.swagger.client.model.Participants;
 import io.swagger.client.model.PeopleNumber;
 import io.swagger.client.model.Product.TypeEnum;
+
 import yellowzebra.util.ConfigReader;
 import yellowzebra.util.Logger;
 import yellowzebra.util.MailConfig;
+
 
 public class CreateBooking {
 
@@ -59,19 +61,7 @@ public class CreateBooking {
 
 		return booking;
 	}
-
-	public static void postBooking(Booking newBooking) throws ApiException {
-		if (ConfigReader.getInstance().getProperty("post_enabled").toUpperCase().equals("YES")) {
-			BookingsApi bookingApi = new BookingsApi();
-
-			// update bookingApi String[] authNames = new String[] { "keyAuth",
-			// "secretKey" };
-			bookingApi.bookingsPost(newBooking, "", false, false, false, false);
-		} else {
-			System.out.println(new JSON().serialize(newBooking));
-		}
-	}
-
+	
 	public static Customer newCustomer(String name, String lastName, String eMail) {
 		Customer customer = new Customer();
 		customer.setFirstName(name);
@@ -92,6 +82,20 @@ public class CreateBooking {
 			e.printStackTrace();
 		}
 	}
+
+	public static void postBooking(Booking newBooking) throws ApiException {
+		if (ConfigReader.getInstance().getProperty("post_enabled").toUpperCase().equals("YES")) {
+			BookingsApi bookingApi = new BookingsApi();
+
+			// update bookingApi String[] authNames = new String[] { "keyAuth",
+			// "secretKey" };
+			bookingApi.bookingsPost(newBooking, "", false, false, false, false);
+		} else {
+			System.out.println(new JSON().serialize(newBooking));
+		}
+	}
+
+	
 	
 	public static void main(String[] args) {
 		Logger.init();

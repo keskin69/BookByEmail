@@ -23,7 +23,7 @@ public class MailReader {
 	private static ConfigReader props = null;
 	private static String inFolder = null;
 	private static GmailFolder inbox = null;
-	
+
 	public static MailReader getInstance() {
 		if (instance == null) {
 			instance = new MailReader();
@@ -72,7 +72,7 @@ public class MailReader {
 		}
 
 		if (store.isConnected()) {
-			 inbox = (GmailFolder) store.getFolder(inFolder);
+			inbox = (GmailFolder) store.getFolder(inFolder);
 			inbox.open(Folder.READ_WRITE);
 			int number = ConfigReader.getInstance().getInt("number_of_mail");
 
@@ -98,10 +98,14 @@ public class MailReader {
 					if (str.equals("Follow up")) {
 						skip = true;
 					}
-					
+
 					if (str.equals("In")) {
 						skip = true;
 					}
+				}
+
+				if (message.getSubject() == null) {
+					skip = true;
 				}
 
 				if (!skip) {
@@ -118,7 +122,7 @@ public class MailReader {
 
 	public static void addLabel(Message msg, String label) throws Exception {
 		msg.setFlag(Flags.Flag.SEEN, true);
-		inbox.setLabels(new Message[]{msg}, new String[]{label}, true);
+		inbox.setLabels(new Message[] { msg }, new String[] { label }, true);
 	}
 
 	public static void moveMail(Message msg, String destFolder) throws Exception {

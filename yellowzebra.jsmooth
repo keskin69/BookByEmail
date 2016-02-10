@@ -6,9 +6,11 @@
 <JVMSearchPath>jdkpath</JVMSearchPath>
 <JVMSearchPath>exepath</JVMSearchPath>
 <JVMSearchPath>jview</JVMSearchPath>
+<arguments></arguments>
 <currentDirectory>${EXECUTABLEPATH}</currentDirectory>
 <embeddedJar>true</embeddedJar>
 <executableName>yellowzebra.exe</executableName>
+<iconLocation>bike-2-32.png</iconLocation>
 <initialMemoryHeap>-1</initialMemoryHeap>
 <jarLocation>yellowparser.jar</jarLocation>
 <mainClassName>yellowzebra.ui.ParserUI</mainClassName>

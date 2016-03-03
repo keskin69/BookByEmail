@@ -27,7 +27,6 @@ public class ParserController implements Runnable {
 	private static SpringPanel panel = null;
 	private static boolean isPaused = true;
 	private static MyBooking myBooking = null;
-	private static String currentFolder = null;
 
 	public ParserController(MailTable tbl, SpringPanel panel) {
 		ParserController.tbl = tbl;
@@ -82,7 +81,6 @@ public class ParserController implements Runnable {
 	public static void fillContent(String subject, String msg, String parserName) throws Exception {
 		AParser parser = ParserFactory.getInstance().getParser(parserName);
 		if (parser != null) {
-			currentFolder = parser.folder;
 			myBooking = parser.parse(subject, msg);
 			
 			// store original e-mail content

@@ -13,6 +13,7 @@ public class Logger {
 	public static LinkLabel label = null;
 	private static PrintWriter writer = null;
 	private static final DateFormat TIMEFORMAT = new SimpleDateFormat("HH:mm:ss");
+	private static String lastMessage = "";
 
 	public static void init() {
 
@@ -48,7 +49,17 @@ public class Logger {
 		write2Log(str);
 	}
 
+	public static void setMessage(String str) {
+		lastMessage = str;
+	}
+
+	public static String getMessage() {
+		return lastMessage;
+	}
+
 	public static void err(String str) {
+		lastMessage = "ERR:" + str;
+
 		if (label == null) {
 			System.out.println("ERROR:" + str);
 		} else {

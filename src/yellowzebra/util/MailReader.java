@@ -41,7 +41,7 @@ public class MailReader {
 			store = (GmailStore) session.getStore("gimap");
 			connect();
 		} catch (NoSuchProviderException e) {
-			Logger.err("Cannot create IMAP store");
+			Logger.err("Cannot connect to gmail");
 		}
 	}
 
@@ -115,6 +115,8 @@ public class MailReader {
 					}
 				}
 			}
+			
+			Logger.log(list.size() + " booking mail found");
 		}
 
 		return list;

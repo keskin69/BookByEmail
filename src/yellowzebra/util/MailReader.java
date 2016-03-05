@@ -102,6 +102,10 @@ public class MailReader {
 					if (str.equals("In")) {
 						skip = true;
 					}
+					
+					if (str.equals("IN")) {
+						skip = true;
+					}
 				}
 
 				if (message.getSubject() == null) {

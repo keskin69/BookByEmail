@@ -128,9 +128,9 @@ public class ParserUI extends JFrame implements WindowStateListener {
 	 * Create the frame.
 	 */
 	public ParserUI() {
-		setTitle("Yellow Zebra Booking Tool V1.0 - Feb 10");
+		setTitle("Yellow Zebra Booking Tool V1.1 - March 05");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(0, 0, 850, 650);
+		setBounds(0, 0, 900, 680);
 		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);
@@ -140,7 +140,7 @@ public class ParserUI extends JFrame implements WindowStateListener {
 		contentPane.add(pnlTop, BorderLayout.CENTER);
 		GridBagLayout gbl_pnlTop = new GridBagLayout();
 		gbl_pnlTop.columnWeights = new double[] { 1.0, 2.5 };
-		gbl_pnlTop.rowWeights = new double[] { 1.4, 1.0 };
+		gbl_pnlTop.rowWeights = new double[] { 1.5, 1.0 };
 		pnlTop.setLayout(gbl_pnlTop);
 
 		JPanel panel = new JPanel();

@@ -7,6 +7,7 @@ import java.util.Date;
 import io.swagger.client.model.Booking;
 import io.swagger.client.model.CustomField;
 import io.swagger.client.model.Customer;
+import io.swagger.client.model.PeopleNumber;
 import io.swagger.client.model.Product;
 import yellowzebra.booking.EventTools;
 import yellowzebra.booking.ProductTools;
@@ -107,7 +108,10 @@ public class MyBooking {
 
 		System.out.println("Start Time: " + getTourDateTime());
 
-		System.out.println("Participant: " + booking.getParticipants().getNumbers().size());
+		for (PeopleNumber num : booking.getParticipants().getNumbers()) {
+			System.out.println("Participant: " + num.getPeopleCategoryId() + ":" + num.getNumber());
+		}
+		
 		Customer customer = booking.getCustomer();
 		System.out.println("Customer:\n" + customer.getFirstName() + " " + customer.getLastName());
 		System.out.println("E-mail: " + customer.getEmailAddress());

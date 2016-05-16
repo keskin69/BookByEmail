@@ -64,12 +64,12 @@ public class ProductTools extends ArrayList<Product> {
 
 		productArray = new String[this.size() + 1];
 		productArray[0] = "";
-		int i = 1;
+		int i = 0;
 		for (Product p : this) {
-			productArray[i++] = p.getName();
+				productArray[i++] = p.getName();
 		}
 
-		//Arrays.sort(productArray);
+		// Arrays.sort(productArray);
 	}
 
 	public String getProductId(String name) {
@@ -104,7 +104,12 @@ public class ProductTools extends ArrayList<Product> {
 
 	public void dump() {
 		for (Product p : this) {
-			System.out.println(p.getName() + ":" + p.getProductId() + ":" + p.getType() + ":" + p.getProductCode());
+			// System.out.println(p.getName() + ":" + p.getProductId() + ":" +
+			// p.getType() + ":" + p.getProductCode());
+		}
+
+		for (String p : productArray) {
+			System.out.println(p + "X");
 		}
 	}
 
@@ -120,7 +125,7 @@ public class ProductTools extends ArrayList<Product> {
 		ProductTools.getInstance().dump();
 		System.out.println("Total:" + productArray.length);
 	}
-	
+
 	public void test1() {
 		String productId = ProductTools.getInstance().getProductId("Dinner Cruise with Live Music");
 		TypeEnum prodType = ProductTools.getInstance().getProductType("Dinner Cruise with Live Music");
